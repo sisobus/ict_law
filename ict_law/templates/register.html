@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="main">
+    <section class="hgroup">
+    <div class="container">
+        <h1>로그인 또는 회원가입 </h1>
+        <ul class="breadcrumb pull-right">
+            <li><a href="/">Home</a> </li>
+            <li class="active">로그인 또는 회원가입</li>
+        </ul>
+    </div>
+    </section>
+    <section>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-6 col-md-6">
+                <div class="signin">
+                    <p class="sign_title">아이디를 이미 만드셨어요?</p>
+                    <div class="row">
+                        <div class="col-lg-2"></div>
+                        <div class="form col-lg-8">
+                            <form>
+                                <input placeholder="이메일" class="form-control" type="text">
+                                <input placeholder="비밀번호" class="form-control" type="text">
+                                <div class="forgot">
+                                    <div class="checkbox">
+                                        <label class="">
+                                            <input type="checkbox">
+                                            자동로그인</label>
+                                    </div>
+                                    <a href="#">비밀번호를 잊으셨나요?</a> </div>
+                                <button type="submit" class="btn btn-primary btn-lg" style="margin-top:47px;">로그인</button>
+                            </form>
+                        </div>
+                        <div class="col-lg-2"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-6">
+                <div class="signup">
+                    <form>
+                        <fieldset>
+                            <p class="sign_title">아직 아이디가 없으신가요?</p>
+                            <div class="row">
+                                <div class="col-lg-2"></div>
+                                <div class="col-lg-8">
+                                    <input id="Username" name="Username" placeholder="닉네임" class="form-control" required="" type="text">
+                                    <input id="Emailaddress" name="Email address" placeholder="이메일 주소" class="form-control" required="" type="text">
+                                    <input id="Password" name="Password" placeholder="비밀번호" class="form-control" required="" type="password">
+                                    <div class="checkbox">
+                                        <label class="">
+                                            <input name="checkboxes" value="Option one" type="checkbox">
+                                            <a href="#">이용약관</a>에 동의합니다.</label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2"></div>
+                            </div>
+                            <button type="submit" class="btn btn-success btn-lg">회원가입</button>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            </section>
+
+    {% include "footer.html" %}
+</div>
+{% endblock %}

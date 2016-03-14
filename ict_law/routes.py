@@ -2,17 +2,16 @@
 from flask import Flask, url_for
 from werkzeug import secure_filename
 from werkzeug.datastructures import ImmutableMultiDict 
-from sqlalchemy import func
 
 from config import UPLOAD_FOLDER, ICT_DATABASE_URI, ICT_SECRET_KEY
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI']   = ICT_DATABASE_URI
-app.config['SECRET_KEY']                = ICT_SECRET_KEY
-app.config['UPLOAD_FOLDER']             = UPLOAD_FOLDER
+#app.config['SQLALCHEMY_DATABASE_URI']   = ICT_DATABASE_URI
+#app.config['SECRET_KEY']                = ICT_SECRET_KEY
+#app.config['UPLOAD_FOLDER']             = UPLOAD_FOLDER
 
 from models import db
-db.init_app(app)
+#db.init_app(app)
 
 from flask import render_template, flash, redirect, session, url_for, request, g, jsonify
 from flask import get_flashed_messages
@@ -27,6 +26,9 @@ import time
 @app.route('/')
 def home():
     return render_template('home.html')
+@app.route('/register')
+def register():
+    return render_template('register.html')
 
 @app.route('/test')
 def test():
