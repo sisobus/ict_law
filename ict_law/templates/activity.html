@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="main">
+    <section class="hgroup centered">
+        <div class="container">
+            <h1>
+                ICT 활동
+            </h1>
+            <h2>
+                이곳은 ICT 활동에 대한 페이지 입니다. 
+            </h2>
+            <ul class="breadcrumb pull-right">
+                <li>
+                <a href="/">Home</a>
+                </li>
+                <li class="active">
+                ICT 활동
+                </li>
+            </ul>
+        </div>
+    </section>
+    <section class="service_teasers">
+        <div class="container">
+            <div class="service_teaser" style="border-bottom:1px solid #cccccc;">
+                <div class="service_photo col-sm-4 col-md-4">
+                    <figure style="background-image:url({{url_for('static',filename='images/slider/slider-3.jpg')}});">
+                    </figure>
+                </div>
+                <div class="service_details col-sm-8 col-md-8">
+                    <h2 class="section_header skincolored">
+                        제 34회 규제법연구회 정기발표회
+                        <small>2016-04-08</small>
+                    </h2>
+                    <p>
+                    ◇ 일시 : 2016년 4월 8일 금요일 19시 30분 ~ 21시 30분<br>
+                    ◇ 장소 : 법무법인 율촌 회의실 (2호선 삼성역 4번 출구/섬유센터 12층)<br>
+                    ◇ 주최 : 규제법연구회ㆍ고려대학교 ICR센터<br>
+                    <br>
+                    제1주제: 복지서비스의 민간공급에 관한 공법적 규율 - 박정연 (법학박사/고려대학교)<br>
+                    제2주제: 디지털플랫폼 공정경쟁규제에 관한 법적 연구- 모바일 앱마켓 사례를 중심으로 -<br>
+                    - 송태원 (변호사/네이버)<br>
+                    </p>
+                </div>
+            </div>
+            <div class="service_teaser" style="border-bottom:1px solid #cccccc;">
+
+                <div class="service_photo col-sm-4 col-md-4">
+                    <figure style="background-image:url({{url_for('static',filename='images/slider/slider-3.jpg')}});">
+                    </figure>
+                </div>
+                <div class="service_details col-sm-8 col-md-8">
+                    <h2 class="section_header skincolored">
+                        제 34회 규제법연구회 정기발표회
+                        <small>2016-04-08</small>
+                    </h2>
+                    <p>
+                    ◇ 일시 : 2016년 4월 8일 금요일 19시 30분 ~ 21시 30분<br>
+                    ◇ 장소 : 법무법인 율촌 회의실 (2호선 삼성역 4번 출구/섬유센터 12층)<br>
+                    ◇ 주최 : 규제법연구회ㆍ고려대학교 ICR센터<br>
+                    <br>
+                    제1주제: 복지서비스의 민간공급에 관한 공법적 규율 - 박정연 (법학박사/고려대학교)<br>
+                    제2주제: 디지털플랫폼 공정경쟁규제에 관한 법적 연구- 모바일 앱마켓 사례를 중심으로 -<br>
+                    - 송태원 (변호사/네이버)<br>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% include "footer.html" %}
+</div>
+{% endblock %}

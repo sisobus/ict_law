@@ -310,6 +310,16 @@ def post_image_save():
             }
     return json.dumps(d)
 
+@app.route('/activity')
+def activity():
+    session['nav_page_id'] = 2
+    return render_template('activity.html')
+
+@app.route('/databook')
+def databook():
+    session['nav_page_id'] = 3
+    return render_template('databook.html')
+
 @app.route('/test')
 def test():
     return render_template('test.html')
