@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+form select#category {
+    background:white;
+    border-color: #cccccc;
+    border-radius: 3px 0 0 3px;
+    border-style: solid;
+    border-width: 1px 1px 1px 1px;
+    color: #888888;
+    font-size: 14px;
+    height:34px;
+}
+.form-box {
+    background-color: white;
+    padding: 40px;
+    padding-bottom: 60px;
+    border : 1px solid #e7e7e7;
+    margin-bottom: 24px;
+    box-sizing: border-box;
+    box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.1);
+    border-radius: 3px;
+}
+</style>
+<div class="main" >
+    <div class="container bs-docs-container">
+        <div class="row">
+            <div class="col-md-10">
+                <div class="bs-docs-section">
+                    <h1 id="notice" class="page-header">
+                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                        &nbsp;
+                        글쓰기
+                    </h1>
+                    <div class="form-box">
+                        <div class="form">
+                            <form action='/save_board' method="post" enctype="multipart/form-data">
+                                {{ ret.writeBoardForm.hidden_tag() }}
+                                <div  style="display:table-cell;width:100%;padding-right:10px;">
+                                {% for message in ret.writeBoardForm.title.errors %}
+                                <div class="flash">{{ message }}</div>
+                                {% endfor %}
+                                {{ ret.writeBoardForm.title(class_="form-control",placeholder="글 제목") }}
+                            </div>
+                            <div style="display:table-cell;">
+                                {% for message in ret.writeBoardForm.category.errors %}
+                                <div class="flash">{{ message }}</div>
+                                {% endfor %}
+                                {{ ret.writeBoardForm.category }}
+                            </div>
+                            <style>
+                            .note-editor.note-frame {
+                                border: 1px solid #cccccc;
+                                margin-top:10px;
+                                margin-bottom:10px;
+                            }
+                            .bs-docs-section img {
+                                border:0;
+                            }
+                            </style>
+                            <textarea id="summernote" name="board_body" style="text-align:left;">
+                            </textarea>
+                            <button type="submit" class="btn btn-primary pull-right" style="color:white;">
+                                작성하기
+                            </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 hidden-sm hidden-xs">
+                <div class="bs-docs-sidebar hidden-print affix-top" role="complementary" data-spy="affix" data-offset-top="164"> 
+                    <ul class="nav bs-docs-sidenav">
+                        <li>
+                        <a href="/board/0">
+                            <i class="fa fa-book"></i>
+                            &nbsp;
+                            {{ ret.board_category_list[0].category_name }}
+                        </a>
+                        </li>
+                        <li>
+                        <a href="/board/1">
+                            <i class="fa fa-exclamation"></i>
+                            &nbsp;
+                            &nbsp;
+                            {{ ret.board_category_list[1].category_name }}
+                        </a>
+                        </li>
+                        <li>
+                        <a href="/board/2">
+                            <i class="fa fa-pencil"></i>
+                            &nbsp;
+                            {{ ret.board_category_list[2].category_name }}
+                        </a>
+                        </li>
+                        <li>
+                        <a href="/board/3">
+                            <i class="fa fa-question"></i>
+                            &nbsp;
+                            {{ ret.board_category_list[3].category_name }}
+                        </a>
+                        </li>
+                        {% if 'logged_in' in session %}
+                        <li>
+                        <a href="/write_board">
+                            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                            &nbsp;
+                            글쓰기
+                        </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    {% include "footer.html" %}
+</div>
+<script>
+$(document).ready(function() {
+    $('body').attr('data-spy','scroll').attr('data-target','.bs-docs-sidebar');
+    $('#category option[value=0]').attr('disabled','true');
+    $('#category option[value=2]').attr('selected','true');
+    function sendFile(file) {
+        var formData = new FormData()
+        formData.append("file",file);
+        var fileData = URL.createObjectURL(file);
+        $('#summernote').summernote('insertImage', fileData,function ($image) {
+            console.log(formData);
+            $.ajax({
+                url: "/post_image_save",
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                dataType:"json",
+                type: 'POST',
+                success: function(data){
+                    console.log(data);
+                    $image.attr('src', '/static/'+data.url);
+                    $image.attr('style', 'width:100%;'); 
+                },
+                error: function(error) {
+                    console.log(error);
+                    $image.attr('src','?');
+                }
+            });
+        });
+    }
+
+    $('#summernote').summernote({
+        height: 400,
+        lang: 'ko-KR',
+        callbacks: {
+            onImageUpload: function(files) {
+                sendFile(files[0]);
+            }
+        }
+        });
+});
+</script>
+{% endblock %}

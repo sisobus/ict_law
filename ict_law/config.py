@@ -1,6 +1,5 @@
 __author__ = 'sisobus'
-UPLOAD_FOLDER = '/home/ictlaw/files'
-ICT_DATABASE_URI   = ''
-#ICT_DATABASE_URI   = 'mysql+pymysql://root:tkdrmsld123@1.234.80.248/howsmart'
+UPLOAD_FOLDER = '/var/www/ict_law/ict_law/static/files'
+ICT_DATABASE_URI   = 'mysql+pymysql://root:tkdrmsld123@58.227.42.161/ict_law'
 ICT_SECRET_KEY     = 'SET T0 4NY SECRET KEY L1KE RAND0M H4SH'
 

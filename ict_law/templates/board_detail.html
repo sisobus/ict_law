@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+form select#category {
+    background:white;
+    border-color: #cccccc;
+    border-radius: 3px 0 0 3px;
+    border-style: solid;
+    border-width: 1px 1px 1px 1px;
+    color: #888888;
+    font-size: 14px;
+    height:34px;
+}
+.form-box {
+    background-color: white;
+    padding: 40px;
+    padding-bottom: 60px;
+    border : 1px solid #e7e7e7;
+    margin-bottom: 24px;
+    box-sizing: border-box;
+    box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.1);
+    border-radius: 3px;
+}
+</style>
+<div class="main" >
+    <div class="container bs-docs-container">
+        <div class="row">
+            <div class="col-md-10">
+                <div class="bs-docs-section">
+                    <h1 id="notice" class="page-header">
+                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                        &nbsp;
+                        {{ ret.board.title }}
+                    </h1>
+                    <h5>작성자 {{ret.user.username}} &nbsp; | &nbsp; 카테고리 <a href="/board/{{ret.board_category.id}}">{{ret.board_category.category_name}}</a> &nbsp; | &nbsp; {{ ret.board.created_at }}</h5>
+                    <div class="form" style="border-bottom: 1px dashed #cccccc;padding-bottom:20px;">
+                        <div id="post_body" class="summernote" style="overflow-x: hidden;">
+                        </div>
+                    </div>
+                    <div id="post_comments" style="padding-top:20px;">
+                        <h4>댓글</h4>
+                        <div class="comment">
+                        {% if 'logged_in' in session %}
+                        <form action="/save_comment?board_id={{ret.board.id}}" method="post">
+                            {{ ret.commentForm.hidden_tag() }}
+                            <div class="form-box">
+                                <h5>댓글 작성자 {{ session['username'] }}</h5>
+                                <div  style="display:table-cell;width:100%;padding-right:10px;">
+                                    {% for message in ret.commentForm.body.errors %}
+                                    <div class="flash">{{ message }}</div>
+                                    {% endfor %}
+                                    {{ ret.commentForm.body(class_="form-control",placeholder="댓글 입력 ...") }}
+                                </div>
+                                <div style="display:table-cell;">
+                                    <button type="submit" class="btn btn-primary">댓글쓰기</button>
+                                </div>
+                            </div>
+                        </form>
+                        {% endif %}
+                        {% for comment in ret.comments %}
+                            <div class="row">
+                                <figure class="col-sm-2 col-md-2">
+                                    <img class="img-circle" src="{{url_for('static',filename='css/images/1as.jpg')}}" style="border:0;border-radius:50%;" alt>
+                                </figure>
+                                <div class="col-sm-10 col-md-10">
+                                    <div class="comment_name">
+                                        {{ comment.user.username }}
+                                    </div>
+                                    <div class="comment_date">
+                                        {{ comment.comment.created_at }}
+                                    </div>
+                                    <div class="the_comment">
+                                        <p>
+                                        {{ comment.comment.body }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 hidden-sm hidden-xs">
+                <div class="bs-docs-sidebar hidden-print affix-top" role="complementary" data-spy="affix" data-offset-top="164"> 
+                    <ul class="nav bs-docs-sidenav">
+                        <li>
+                        <a href="/board/0">
+                            <i class="fa fa-book"></i>
+                            &nbsp;
+                            {{ ret.board_category_list[0].category_name }}
+                        </a>
+                        </li>
+                        <li>
+                        <a href="/board/1">
+                            <i class="fa fa-exclamation"></i>
+                            &nbsp;
+                            &nbsp;
+                            {{ ret.board_category_list[1].category_name }}
+                        </a>
+                        </li>
+                        <li>
+                        <a href="/board/2">
+                            <i class="fa fa-pencil"></i>
+                            &nbsp;
+                            {{ ret.board_category_list[2].category_name }}
+                        </a>
+                        </li>
+                        <li>
+                        <a href="/board/3">
+                            <i class="fa fa-question"></i>
+                            &nbsp;
+                            {{ ret.board_category_list[3].category_name }}
+                        </a>
+                        </li>
+                        {% if 'logged_in' in session %}
+                        <li>
+                        <a href="/write_board">
+                            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                            &nbsp;
+                            글쓰기
+                        </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    {% include "footer.html" %}
+</div>
+<script>
+$(document).ready(function() {
+    $('body').attr('data-spy','scroll').attr('data-target','.bs-docs-sidebar');
+    var html = "{{ ret.board.body }}";
+    $('#post_body').html($('<div/>').html(html).text());
+});
+</script>
+{% endblock %}
