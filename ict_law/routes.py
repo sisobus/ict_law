@@ -12,19 +12,43 @@ app.config['SQLALCHEMY_DATABASE_URI']   = ICT_DATABASE_URI
 app.config['SECRET_KEY']                = ICT_SECRET_KEY
 app.config['UPLOAD_FOLDER']             = UPLOAD_FOLDER
 
-from models import db, User, Image, Board_category, Board, Comment
-from forms import SignupForm, SigninForm, WriteBoardForm, CommentForm
+from models import (
+        db, 
+        User, 
+        Image, 
+        Board_category, 
+        Board, 
+        Comment,
+        Blog_post,
+        Blog_comment,
+        Blog_tag
+        )
+from forms import (
+        SignupForm, 
+        SigninForm, 
+        WriteBoardForm, 
+        CommentForm,
+        WriteBlogPostForm,
+        BlogCommentForm
+        )
 db.init_app(app)
 
 from flask import render_template, flash, redirect, session, url_for, request, g, jsonify
 from flask import get_flashed_messages
-from flask.ext.login import LoginManager, UserMixin, current_user, login_user, logout_user
+from flask.ext.login import LoginManager, UserMixin, current_user, login_user, logout_user, login_required
 from datetime import datetime, timedelta
 
 import json
 import utils
 import os
 import time
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.filter_by(id=user_id).first()
 
 @app.route('/')
 def home():
@@ -248,6 +272,7 @@ def board(category_id):
     return render_template('board.html',ret=ret)
 
 @app.route('/write_board',methods=['GET'])
+@login_required
 def write_board():
     session['nav_page_id'] = 4
     with app.app_context():
@@ -280,12 +305,44 @@ def save_board():
             category_id = writeBoardForm.category.data
             user_id     = session['user_id']
             body        = request.form['board_body']
+            print body
             new_board   = Board(title, body, category_id, user_id)
             db.session.add(new_board)
             db.session.commit()
             return redirect(url_for('board_detail',board_id=new_board.id))
 
+@app.route('/save_blog_post',methods=['POST'])
+def save_blog_post():
+    with app.app_context():
+        writeBlogPostForm = WriteBlogPostForm()
+    ret = {
+            'writeBlogPostForm': writeBlogPostForm
+            }
+    if request.method == 'POST':
+        if not writeBlogPostForm.validate_on_submit():
+            return render_template('write_blog_post.html',ret=ret)
+        else:
+            title       = writeBlogPostForm.title.data
+            user_id     = session['user_id']
+            body        = request.form['board_body']
+            new_blog_post = Blog_post(title, body, user_id)
+            tags        = writeBlogPostForm.tags.data
+            if tags:
+                tags = tags.split(',')
+            db.session.add(new_blog_post)
+            db.session.commit()
+            return redirect(url_for('blog_post',blog_post_id=new_blog_post.id))
 
+@app.route('/write_blog_post',methods=['GET'])
+@login_required
+def write_blog_post():
+    session['nav_page_id'] = 5
+    with app.app_context():
+        writeBlogPostForm = WriteBlogPostForm()
+    ret = {
+            'writeBlogPostForm': writeBlogPostForm
+            }
+    return render_template('write_blog_post.html',ret=ret)
 
 @app.route('/post_image_save',methods=['POST'])
 def post_image_save():
@@ -295,7 +352,8 @@ def post_image_save():
         directory_name = utils.convert_email_to_directory_name(session['email'])
         directory_url = os.path.join(app.config['UPLOAD_FOLDER'],directory_name)
         utils.createDirectory(directory_url)
-        file_path = os.path.join(directory_url,filename)
+#        file_path = os.path.join(directory_url,filename)
+        file_path = os.path.join(directory_url,filename.split('.')[0]+'-'+str(datetime.now()).replace(' ','-')+'.'+filename.split('.')[-1])
         file.save(file_path)
         image = Image(file_path, session['user_id'])
         db.session.add(image)

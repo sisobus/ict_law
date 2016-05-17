@@ -78,3 +78,26 @@ class CommentForm(Form):
         if not Form.validate(self):
             return False
         return True
+
+class WriteBlogPostForm(Form):
+    title       = TextField('title', [validators.Required(u'블로그 글 제목은 필수입니다.')])
+    tags        = TextField('tags', [validators.Optional()])
+
+    def __init__(self, *args, **kargs):
+        Form.__init__(self, *args, **kargs)
+
+    def validate(self):
+        if not Form.validate(self):
+            return False
+        return True
+
+class BlogCommentForm(Form):
+    body        = TextField('body', [validators.Required(u'댓글 입력은 필수입니다.')])
+
+    def __init__(self, *args, **kargs):
+        Form.__init__(self, *args, **kargs)
+
+    def validate(self):
+        if not Form.validate(self):
+            return False
+        return True

@@ -1,19 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
 <style>
-form select#category {
-    background:white;
-    border-color: #cccccc;
-    border-radius: 3px 0 0 3px;
-    border-style: solid;
-    border-width: 1px 1px 1px 1px;
-    color: #888888;
-    font-size: 14px;
-    height:34px;
-}
 .form-box {
     background-color: white;
-    padding: 40px;
+    padding: 20px;
     padding-bottom: 60px;
     border : 1px solid #e7e7e7;
     margin-bottom: 24px;
@@ -34,20 +24,12 @@ form select#category {
                     </h1>
                     <div class="form-box">
                         <div class="form">
-                            <form action='/save_board' method="post" enctype="multipart/form-data">
-                                {{ ret.writeBoardForm.hidden_tag() }}
-                                <div  style="display:table-cell;width:100%;padding-right:10px;">
-                                {% for message in ret.writeBoardForm.title.errors %}
+                            <form action='/save_blog_post' method="post" enctype="multipart/form-data">
+                                {{ ret.writeBlogPostForm.hidden_tag() }}
+                                {% for message in ret.writeBlogPostForm.title.errors %}
                                 <div class="flash">{{ message }}</div>
                                 {% endfor %}
-                                {{ ret.writeBoardForm.title(class_="form-control",placeholder="글 제목") }}
-                            </div>
-                            <div style="display:table-cell;">
-                                {% for message in ret.writeBoardForm.category.errors %}
-                                <div class="flash">{{ message }}</div>
-                                {% endfor %}
-                                {{ ret.writeBoardForm.category }}
-                            </div>
+                                {{ ret.writeBlogPostForm.title(class_="form-control",placeholder="글 제목") }}
                             <style>
                             .note-editor.note-frame {
                                 border: 1px solid #cccccc;
@@ -60,6 +42,10 @@ form select#category {
                             </style>
                             <textarea id="summernote" name="board_body" style="text-align:left;">
                             </textarea>
+                            {% for message in ret.writeBlogPostForm.tags.errors %}
+                            <div class="flash">{{ message }}</div>
+                            {% endfor %}
+                            {{ ret.writeBlogPostForm.tags(class_="form-control",placeholder="태그를 ,로 구분하여 입력해주세요") }}
                             <button type="submit" class="btn btn-primary pull-right" style="color:white;">
                                 작성하기
                             </button>
@@ -75,7 +61,6 @@ form select#category {
                         <a href="/board/0">
                             <i class="fa fa-book"></i>
                             &nbsp;
-                            {{ ret.board_category_list[0].category_name }}
                         </a>
                         </li>
                         <li>
@@ -83,32 +68,20 @@ form select#category {
                             <i class="fa fa-exclamation"></i>
                             &nbsp;
                             &nbsp;
-                            {{ ret.board_category_list[1].category_name }}
                         </a>
                         </li>
                         <li>
                         <a href="/board/2">
                             <i class="fa fa-pencil"></i>
                             &nbsp;
-                            {{ ret.board_category_list[2].category_name }}
                         </a>
                         </li>
                         <li>
                         <a href="/board/3">
                             <i class="fa fa-question"></i>
                             &nbsp;
-                            {{ ret.board_category_list[3].category_name }}
                         </a>
                         </li>
-                        {% if 'logged_in' in session %}
-                        <li>
-                        <a href="/write_board">
-                            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
-                            &nbsp;
-                            글쓰기
-                        </a>
-                        </li>
-                        {% endif %}
                     </ul>
                 </div>
             </div>
@@ -148,8 +121,6 @@ function sendFile(file) {
 
 $(document).ready(function() {
     $('body').attr('data-spy','scroll').attr('data-target','.bs-docs-sidebar');
-    $('#category option[value=0]').attr('disabled','true');
-    $('#category option[value=2]').attr('selected','true');
     $('#summernote').summernote({
     height: 400,
     lang: 'ko-KR',

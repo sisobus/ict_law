@@ -28,6 +28,22 @@ class User(db.Model):
     def check_password(self, password):
         return check_password_hash(self.password, password)
 
+    def is_active(self):
+        """True, as all users are active."""
+        return True
+
+    def get_id(self):
+        """Return the email address to satisfy Flask-Login's requirements."""
+        return self.email
+
+    def is_authenticated(self):
+        """Return True if the user is authenticated."""
+        return self.authenticated
+
+    def is_anonymous(self):
+        """False, as anonymous users aren't supported."""
+        return False
+
 class Image(db.Model):
     __tablename__       = 'image'
     id                  = db.Column(db.Integer, primary_key=True)
@@ -77,3 +93,39 @@ class Comment(db.Model):
         self.user_id    = user_id 
         self.created_at = datetime.now()
         self.board_id   = board_id
+
+class Blog_post(db.Model):
+    __tablename__       = 'blog_post'
+    id                  = db.Column(db.Integer, primary_key=True)
+    title               = db.Column(db.String(500))
+    body                = db.Column(db.String(5000))
+    created_at          = db.Column(db.DateTime)
+    user_id             = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    def __init__(self, title, body, user_id):
+        self.title      = title
+        self.body       = body
+        self.created_at = datetime.now()
+        self.user_id    = user_id
+
+class Blog_comment(db.Model):
+    __tablename__       = 'blog_comment'
+    id                  = db.Column(db.Integer, primary_key=True)
+    body                = db.Column(db.String(1000))
+    created_at          = db.Column(db.DateTime)
+    user_id             = db.Column(db.Integer, db.ForeignKey('user.id'))
+    blog_post_id        = db.Column(db.Integer, db.ForeignKey('blog_post.id'))
+
+    def __init__(self, body, user_id, blog_post_id):
+        self.body       = body
+        self.created_at = datetime.now()
+        self.user_id    = user_id
+        self.blog_post_id = blog_post_id 
+
+class Blog_tag(db.Model):
+    __tablename__       = 'blog_tag'
+    id                  = db.Column(db.Integer, primary_key=True)
+    tag_name            = db.Column(db.String(200))
+
+    def __init__(self, tag_name):
+        self.tag_name   = tag_name
