@@ -138,3 +138,35 @@ class Blog_post_has_blog_tag(db.Model):
     def __init__(self, blog_post_id, blog_tag_id):
         self.blog_post_id   = blog_post_id
         self.blog_tag_id    = blog_tag_id
+
+class Event(db.Model):
+    __tablename__       = 'event'
+    id                  = db.Column(db.Integer, primary_key=True)
+    title               = db.Column(db.String(500))
+    body                = db.Column(db.String(5000))
+    created_at          = db.Column(db.DateTime)
+    user_id             = db.Column(db.Integer, db.ForeignKey('user.id'))
+    image_id            = db.Column(db.Integer, db.ForeignKey('image.id'))
+
+    def __init__(self, title, body, user_id, image_id):
+        self.title      = title
+        self.body       = body
+        self.created_at = datetime.now()
+        self.user_id    = user_id
+        self.image_id   = image_id
+
+class Publication(db.Model):
+    __tablename__       = 'publication'
+    id                  = db.Column(db.Integer, primary_key=True)
+    title               = db.Column(db.String(500))
+    body                = db.Column(db.String(5000))
+    created_at          = db.Column(db.DateTime)
+    user_id             = db.Column(db.Integer, db.ForeignKey('user.id'))
+    image_id            = db.Column(db.Integer, db.ForeignKey('image.id'))
+
+    def __init__(self, title, body, user_id, image_id):
+        self.title      = title
+        self.body       = body
+        self.created_at = datetime.now()
+        self.user_id    = user_id
+        self.image_id   = image_id

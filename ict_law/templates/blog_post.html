@@ -53,13 +53,13 @@ form select#category {
                             {{ ret.commentForm.hidden_tag() }}
                             <div class="form-box">
                                 <h5>댓글 작성자 {{ session['username'] }}</h5>
-                                <div  style="display:table-cell;width:100%;padding-right:10px;">
+                                <div  style=";width:100%;">
                                     {% for message in ret.commentForm.body.errors %}
                                     <div class="flash">{{ message }}</div>
                                     {% endfor %}
                                     {{ ret.commentForm.body(class_="form-control",placeholder="댓글 입력 ...") }}
                                 </div>
-                                <div style="display:table-cell;">
+                                <div class="pull-right" style="padding-top:10px;">
                                     <button type="submit" class="btn btn-primary">댓글쓰기</button>
                                 </div>
                             </div>
@@ -71,19 +71,24 @@ form select#category {
                                     <img class="img-circle" src="{{url_for('static',filename='css/images/1as.jpg')}}" style="border:0;border-radius:50%;" alt>
                                 </figure>
                                 <div class="col-sm-10 col-md-10">
-                                    <div class="comment_name">
-                                        {{ comment.user.username }}
-                                    </div>
-                                    <div class="comment_date">
-                                        {{ comment.comment.created_at }}
+                                    <div class="comment_name" style="font-size:12px;">
+                                        <strong style="font-size:15px;">{{ comment.user.username }}</strong> | {{ comment.comment.created_at }}
                                     </div>
                                     <div class="the_comment">
                                         <p>
                                         {{ comment.comment.body }}
                                         </p>
+                                        <div class="pull-right">
+                                            {% if session['user_id'] == comment.user.id or session['level'] == 99 %}
+                                            <button class="btn btn-danger" data-toggle="modal" data-target="#delete-comment-modal-{{comment.comment.id}}">
+                                                댓글 삭제
+                                            </button>
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            {% include "delete_blog_comment_confirm_modal.html" %}
                             {% endfor %}
                         </div>
                     </div>
@@ -91,6 +96,20 @@ form select#category {
             </div>
             <div class="col-md-3 hidden-sm hidden-xs">
                 <div class="bs-docs-sidebar hidden-print affix-top" role="complementary" data-spy="affix" data-offset-top="164"> 
+                    <ul class="nav bs-docs-sidenav">
+                        <li>
+                        <a href="/edit_blog_post/{{ret.blog_post.id}}">
+                            <i class="fa fa-pencil-square" aria-hidden="true"></i>
+                             &nbsp; 수정하기
+                        </a>
+                        </li>
+                        <li>
+                        <a href="#" data-toggle="modal" data-target="#delete-modal">
+                            <i class="fa fa-trash-o" aria-hidden="true"></i>
+                             &nbsp; 삭제하기
+                        </a>
+                        </li>
+                    </ul>
                     <h4 style="padding-left:10px;">
                         블로그 최신 글
                     </h4>
@@ -135,6 +154,18 @@ $(document).ready(function() {
     $('body').attr('data-spy','scroll').attr('data-target','.bs-docs-sidebar');
     var html = "{{ ret.blog_post.body }}";
     $('#post_body').html($('<div/>').html(html).text());
+    $('#delete-button').click(function() {
+        $.ajax({
+            url: '/delete_blog_post/{{ret.blog_post.id}}',
+            type: 'POST',
+            success: function(response) {
+                window.location.href = "/blog";
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+    });
 });
 </script>
 {% endblock %}

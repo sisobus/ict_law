@@ -26,13 +26,6 @@
                         <i class="fa fa-bookmark" aria-hidden="true"></i>
                         &nbsp;
                         블로그
-                        {% if session['level'] == 99 %}
-                        <a href="/write_blog_post">
-                            <button class="btn btn-primary">
-                                블로그 글쓰기
-                            </button>
-                        </a>
-                        {% endif %}
                     </h1>
                         {{ ret.pagination.info }}
                         {% for blog_post in ret.blog_posts %}
@@ -74,6 +67,17 @@
             </div>
             <div class="col-md-3 hidden-sm hidden-xs">
                 <div class="bs-docs-sidebar hidden-print affix-top" role="complementary" data-spy="affix" data-offset-top="164"> 
+                    {% if session['level'] == 99 %}
+                    <ul class="nav bs-docs-sidenav">
+                        <li>
+                        <a href="/write_blog_post">
+                            <i class="fa fa-pencil"  aria-hidden="true"></i>
+                            &nbsp; 
+                            블로그 글쓰기 
+                        </a>
+                        </li>
+                    </ul>
+                    {% endif %}
                     <h4 style="padding-left:10px;">
                         블로그 최신 글
                     </h4>

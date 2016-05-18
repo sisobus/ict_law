@@ -19,11 +19,11 @@
 <script>
     $('#delete-comment-button-{{comment.comment.id}}').click(function() {
         $.ajax({
-            url: '/delete_comment/{{comment.comment.id}}',
+            url: '/delete_blog_comment/{{comment.comment.id}}',
             type: 'POST',
             success: function(response) {
             console.log(response);
-            window.location.href = "/board_detail/{{ret.board.id}}";
+            window.location.href = "/blog_post/{{ret.blog_post.id}}";
             },
             error: function(error){
                 console.log(error);

@@ -1,6 +1,19 @@
 #-*- coding:utf-8 -*-
 from flask.ext.wtf import Form,widgets
-from wtforms import widgets,TextField,TextAreaField, SubmitField, validators, ValidationError, PasswordField, FileField, RadioField, SelectField, SelectMultipleField, BooleanField
+from wtforms import (
+        widgets,
+        TextField,
+        TextAreaField, 
+        SubmitField, 
+        validators, 
+        ValidationError, 
+        PasswordField, 
+        FileField, 
+        RadioField, 
+        SelectField, 
+        SelectMultipleField, 
+        BooleanField
+        )
 from models import db, User, Board_category
 import utils
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -101,3 +114,24 @@ class BlogCommentForm(Form):
         if not Form.validate(self):
             return False
         return True
+
+class EventForm(Form):
+    title       = TextField('title', [validators.Required(u'제목은 필수입니다.')])
+    filename    = FileField('filename', [validators.Required(u'대표 사진은 필수입니다.')])
+    def __init__(self, *args, **kargs):
+        Form.__init__(self, *args, **kargs)
+    def validate(self):
+        if not Form.validate(self):
+            return False
+        return True
+
+class PublicationForm(Form):
+    title       = TextField('title', [validators.Required(u'제목은 필수입니다.')])
+    filename    = FileField('filename', [validators.Required(u'대표 사진은 필수입니다.')])
+    def __init__(self, *args, **kargs):
+        Form.__init__(self, *args, **kargs)
+    def validate(self):
+        if not Form.validate(self):
+            return False
+        return True
+

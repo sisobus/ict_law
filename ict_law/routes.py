@@ -22,7 +22,9 @@ from models import (
         Blog_post,
         Blog_comment,
         Blog_tag,
-        Blog_post_has_blog_tag
+        Blog_post_has_blog_tag,
+        Event,
+        Publication
         )
 from forms import (
         SignupForm, 
@@ -30,7 +32,9 @@ from forms import (
         WriteBoardForm, 
         CommentForm,
         WriteBlogPostForm,
-        BlogCommentForm
+        BlogCommentForm,
+        EventForm,
+        PublicationForm
         )
 db.init_app(app)
 
@@ -366,6 +370,26 @@ def delete_comment(comment_id):
     db.session.commit()
     return json.dumps({'message':'delete success'})
 
+@app.route('/delete_blog_comment/<int:blog_comment_id>',methods=['POST'])
+@login_required
+def delete_blog_comment(blog_comment_id):
+    comment = Blog_comment.query.filter_by(id=blog_comment_id).first()
+    db.session.delete(comment)
+    db.session.commit()
+    return json.dumps({'message':'delete success'})
+
+@app.route('/delete_blog_post/<int:blog_post_id>',methods=['POST'])
+@login_required
+def delete_blog_post(blog_post_id):
+    blog_comments = Blog_comment.query.filter_by(blog_post_id=blog_post_id).all()
+    for blog_comment in blog_comments:
+        db.session.delete(blog_comment)
+        db.session.commit()
+    blog_post = Blog_post.query.filter_by(id=blog_post_id).first()
+    db.session.delete(blog_post)
+    db.session.commit()
+    return json.dumps({'message':'delete success'})
+
 
 @app.route('/save_board',methods=['POST'])
 def save_board():
@@ -453,6 +477,63 @@ def blog_post(blog_post_id):
             'recent_blog_comments': recent_blog_comments 
             }
     return render_template('blog_post.html',ret=ret)
+
+@app.route('/edit_blog_post/<int:blog_post_id>')
+@login_required
+def edit_blog_post(blog_post_id):
+    session['nav_page_id'] = 5
+    with app.app_context():
+        writeBlogPostForm = WriteBlogPostForm()
+    blog_post = Blog_post.query.filter_by(id=blog_post_id).first()
+    writeBlogPostForm.title.data = blog_post.title
+    blog_post_has_blog_tags = Blog_post_has_blog_tag.query.filter_by(blog_post_id=blog_post_id).all()
+    writeBlogPostForm.tags.data = ''
+    for blog_post_has_blog_tag in blog_post_has_blog_tags:
+        tag = Blog_tag.query.filter_by(id=blog_post_has_blog_tag.blog_tag_id).first()
+        writeBlogPostForm.tags.data += tag.tag_name
+        if blog_post_has_blog_tag != blog_post_has_blog_tags[-1]:
+            writeBlogPostForm.tags.data += ', '
+    ret = {
+            'writeBlogPostForm': writeBlogPostForm,
+            'blog_post': blog_post
+            }
+    return render_template('edit_blog_post.html',ret=ret)
+
+@app.route('/save_edit_blog_post/<int:blog_post_id>',methods=['POST'])
+def save_edit_blog_post(blog_post_id):
+    with app.app_context():
+        writeBlogPostForm = WriteBlogPostForm()
+    blog_post = Blog_post.query.filter_by(id=blog_post_id).first()
+    blog_post_has_blog_tags = Blog_post_has_blog_tag.query.filter_by(blog_post_id=blog_post_id).all()
+    ret = {
+            'writeBlogPostForm': writeBlogPostForm,
+            'blog_post': blog_post
+            }
+    if request.method == 'POST':
+        if not writeBlogPostForm.validate_on_submit():
+            return render_template('edit_blog_post.html',ret=ret)
+        else:
+            blog_post.title       = writeBlogPostForm.title.data
+            blog_post.body        = request.form['board_body']
+            db.session.commit()
+            tags        = writeBlogPostForm.tags.data
+            blog_post_has_blog_tags = Blog_post_has_blog_tag.query.filter_by(blog_post_id=blog_post.id).all()
+            for blog_post_has_blog_tag in blog_post_has_blog_tags:
+                db.session.delete(blog_post_has_blog_tag)
+                db.session.commit()
+            if tags:
+                tags = tags.split(',')
+                for tag in tags:
+                    blog_tag = Blog_tag.query.filter_by(tag_name=tag.strip()).first()
+                    if not blog_tag:
+                        blog_tag = Blog_tag(tag.strip())
+                        db.session.add(blog_tag)
+                        db.session.commit()
+                    blog_post_has_blog_tag = Blog_post_has_blog_tag(blog_post.id,blog_tag.id)
+                    db.session.add(blog_post_has_blog_tag)
+                    db.session.commit()
+            return redirect(url_for('blog_post',blog_post_id=blog_post.id))
+
 
 @app.route('/save_blog_post',methods=['POST'])
 def save_blog_post():
@@ -552,6 +633,54 @@ def save_blog_comment():
 def activity():
     session['nav_page_id'] = 2
     return render_template('activity.html')
+
+@app.route('/write_activity')
+def write_activity():
+    session['nav_page_id'] = 2
+    with app.app_context():
+        eventForm = EventForm()
+
+    ret = {
+            'eventForm': eventForm
+            }
+    return render_template('write_activity.html',ret=ret)
+
+@app.route('/save_activity',methods=['POST'])
+@login_required
+def save_activity():
+    session['nav_page_id'] = 2
+    with app.app_context():
+        eventForm = EventForm()
+    ret = {
+            'eventForm': eventForm
+            }
+    if request.method == 'POST':
+        if not eventForm.validate():
+            return render_template('write_activity.html',ret=ret)
+        else:
+            if eventForm.validate_on_submit():
+                filename = secure_filename(eventForm.filename.data.filename)
+                if utils.allowedFile(filename):
+                    directory_name = utils.convert_email_to_directory_name(session['email'])
+                    directory_url = os.path.join(app.config['UPLOAD_FOLDER'],directory_name)
+                    utils.createDirectory(directory_url)
+                    file_path = os.path.join(directory_url,filename.split('.')[0]+'-'+str(datetime.now()).replace(' ','-')+'.'+filename.split('.')[-1])
+                    eventForm.filename.data.save(file_path)
+                    image = Image(file_path, session['user_id'])
+                    db.session.add(image)
+                    db.session.commit()
+
+                    title = eventForm.title.data
+                    body = request.form['board_body']
+                    user_id = session['user_id']
+                    image_id = image.id
+
+                    new_event = Event(title,body,user_id,image_id)
+                    db.session.add(new_event)
+                    db.session.commit()
+                    return redirect(url_for('activity'))
+                else:
+                    return json.dumps({'status':'error','message':'extention error'})
 
 @app.route('/databook')
 def databook():
