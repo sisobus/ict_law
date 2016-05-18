@@ -21,7 +21,8 @@ from models import (
         Comment,
         Blog_post,
         Blog_comment,
-        Blog_tag
+        Blog_tag,
+        Blog_post_has_blog_tag
         )
 from forms import (
         SignupForm, 
@@ -93,6 +94,7 @@ def signup():
             session['email']    = email
             session['user_id']  = newuser.id
             session['logged_in']= True
+            session['level']    = newuser.level
 
             return redirect(url_for('home'))
 
@@ -118,6 +120,7 @@ def signin():
             session['email']    = user.email
             session['user_id']  = user.id
             session['logged_in']= True
+            session['level']    = user.level
 
             return redirect(url_for('home'))
 
@@ -131,6 +134,7 @@ def signout():
     session.pop('email', None)
     session.pop('user_id', None)
     session.pop('logged_in', None)
+    session.pop('level', None)
 
     return redirect(url_for('home'))
 
@@ -175,6 +179,10 @@ def get_comment_by_board_id(board_id):
     comments = Comment.query.filter_by(board_id=board_id).order_by(Comment.created_at.asc()).all()
     return comments
 
+def get_comment_by_blog_post_id(blog_post_id):
+    comments = Blog_comment.query.filter_by(blog_post_id=blog_post_id).order_by(Blog_comment.created_at.asc()).all()
+    return comments
+
 def get_comment_information(comments):
     ret = []
     for comment in comments:
@@ -182,6 +190,19 @@ def get_comment_information(comments):
         d = {
                 'comment': comment,
                 'user': user
+                }
+        ret.append(d)
+    return ret
+
+def get_blog_post_information(blog_posts):
+    ret = []
+    for blog_post in blog_posts:
+        user = User.query.filter_by(id=blog_post.user_id).first()
+        comments = Blog_comment.query.filter_by(blog_post_id=blog_post.id).all()
+        d = {
+                'user': user,
+                'blog_post': blog_post,
+                'comments': comments
                 }
         ret.append(d)
     return ret
@@ -286,6 +307,66 @@ def write_board():
             }
     return render_template('write_board.html',ret=ret)
 
+@app.route('/edit_board/<int:board_id>')
+@login_required
+def edit_board(board_id):
+    with app.app_context():
+        writeBoardForm = WriteBoardForm()
+        writeBoardForm.category.choices = get_board_category_list_for_select_form()
+    board_category_list = get_board_category_list()
+    board = Board.query.filter_by(id=board_id).first()
+    writeBoardForm.title.data = board.title
+    ret = {
+            'writeBoardForm': writeBoardForm,
+            'board_category_list': board_category_list,
+            'board': board
+            }
+    return render_template('board_edit.html',ret=ret)
+
+@app.route('/save_edit_board/<int:board_id>',methods=['POST'])
+@login_required
+def save_edit_board(board_id):
+    with app.app_context():
+        writeBoardForm = WriteBoardForm()
+        writeBoardForm.category.choices = get_board_category_list_for_select_form()
+    board_category_list = get_board_category_list()
+    board = Board.query.filter_by(id=board_id).first()
+    ret = {
+            'writeBoardForm': writeBoardForm,
+            'board_category_list': board_category_list,
+            'board': board
+            }
+    if request.method == 'POST':
+        if not writeBoardForm.validate_on_submit():
+            return render_template('board_edit.html',ret=ret)
+        else :
+            board.title = writeBoardForm.title.data
+            board.body  = request.form['board_body']
+            board.category_id = writeBoardForm.category.data
+            db.session.commit()
+            return redirect(url_for('board_detail',board_id=board.id))
+
+@app.route('/delete_board/<int:board_id>',methods=['POST'])
+@login_required
+def delete_board(board_id):
+    comments = Comment.query.filter_by(board_id=board_id).all()
+    for comment in comments:
+        db.session.delete(comment)
+        db.session.commit()
+    board = Board.query.filter_by(id=board_id).first()
+    db.session.delete(board)
+    db.session.commit()
+    return json.dumps({'message':'delete success'})
+
+@app.route('/delete_comment/<int:comment_id>',methods=['POST'])
+@login_required
+def delete_comment(comment_id):
+    comment = Comment.query.filter_by(id=comment_id).first()
+    db.session.delete(comment)
+    db.session.commit()
+    return json.dumps({'message':'delete success'})
+
+
 @app.route('/save_board',methods=['POST'])
 def save_board():
     with app.app_context():
@@ -311,6 +392,68 @@ def save_board():
             db.session.commit()
             return redirect(url_for('board_detail',board_id=new_board.id))
 
+@app.route('/blog')
+def blog():
+    session['nav_page_id'] = 5
+
+    search = False
+    per_page = 5
+    q = request.args.get('q')
+    if q:
+        search = True
+    try:
+        page = int(request.args.get('page', 1))
+    except ValueError:
+        page = 1
+
+    blog_posts = Blog_post.query.order_by(Blog_post.created_at.desc()).limit(per_page).offset((page-1)*per_page)
+    total_count = Blog_post.query.count()
+    pagination = Pagination(page=page, total=total_count, search=search, record_name='blog_post', per_page=per_page)
+    blog_posts = get_blog_post_information(blog_posts)
+
+    blog_tags = Blog_tag.query.order_by(Blog_tag.id.desc()).all()
+    recent_blog_posts = Blog_post.query.order_by(Blog_post.created_at.desc()).limit(5)
+    recent_blog_comments = Blog_comment.query.order_by(Blog_comment.created_at.desc()).limit(5)
+
+    ret = {
+            'blog_posts': blog_posts,
+            'pagination': pagination,
+            'blog_tags': blog_tags,
+            'recent_blog_posts': recent_blog_posts 
+            }
+    return render_template('blog.html',ret=ret)
+
+@app.route('/blog_post/<int:blog_post_id>')
+def blog_post(blog_post_id):
+    session['nav_page_id'] = 5
+    with app.app_context():
+        commentForm = CommentForm()
+    blog_post   = Blog_post.query.filter_by(id=blog_post_id).first()
+    user        = User.query.filter_by(id=blog_post.user_id).first()
+    comments = get_comment_by_blog_post_id(blog_post_id)
+    comments = get_comment_information(comments)
+    blog_post_has_blog_tags = Blog_post_has_blog_tag.query.filter_by(blog_post_id=blog_post_id).all()
+    blog_tags = []
+    for blog_post_has_blog_tag in blog_post_has_blog_tags:
+        blog_tag = Blog_tag.query.filter_by(id=blog_post_has_blog_tag.blog_tag_id).first()
+        blog_tags.append(blog_tag)
+
+    all_blog_tags = Blog_tag.query.order_by(Blog_tag.id.desc()).all()
+    recent_blog_posts = Blog_post.query.order_by(Blog_post.created_at.desc()).limit(5)
+    recent_blog_comments = Blog_comment.query.order_by(Blog_comment.created_at.desc()).limit(5)
+
+    ret = {
+            'commentForm': commentForm,
+            'blog_post': blog_post,
+            'user' : user,
+            'comments': comments,
+            'blog_tags': blog_tags,
+            'all_blog_tags': all_blog_tags,
+            'recent_blog_posts': recent_blog_posts,
+            'recent_blog_comments': recent_blog_comments 
+            }
+    return render_template('blog_post.html',ret=ret)
+
 @app.route('/save_blog_post',methods=['POST'])
 def save_blog_post():
     with app.app_context():
@@ -326,11 +469,20 @@ def save_blog_post():
             user_id     = session['user_id']
             body        = request.form['board_body']
             new_blog_post = Blog_post(title, body, user_id)
+            db.session.add(new_blog_post)
+            db.session.commit()
             tags        = writeBlogPostForm.tags.data
             if tags:
                 tags = tags.split(',')
-            db.session.add(new_blog_post)
-            db.session.commit()
+                for tag in tags:
+                    blog_tag = Blog_tag.query.filter_by(tag_name=tag.strip()).first()
+                    if not blog_tag:
+                        blog_tag = Blog_tag(tag.strip())
+                        db.session.add(blog_tag)
+                        db.session.commit()
+                    blog_post_has_blog_tag = Blog_post_has_blog_tag(new_blog_post.id,blog_tag.id)
+                    db.session.add(blog_post_has_blog_tag)
+                    db.session.commit()
             return redirect(url_for('blog_post',blog_post_id=new_blog_post.id))
 
 @app.route('/write_blog_post',methods=['GET'])
@@ -367,6 +519,34 @@ def post_image_save():
         'url': utils.get_image_path(image.image_path)
             }
     return json.dumps(d)
+
+@app.route('/save_blog_comment',methods=['POST'])
+def save_blog_comment():
+    with app.app_context():
+        commentForm = CommentForm()
+    blog_post_id = int(request.args.get('blog_post_id'))
+    if request.method =='POST':
+        if not commentForm.validate():
+            blog_post   = Blog_post.query.filter_by(id=blog_post_id).first()
+            user        = User.query.filter_by(id=blog_post.user_id).first()
+            comments = get_comment_by_blog_post_id(blog_post_id)
+            comments = get_comment_information(comments)
+
+            ret = {
+                    'commentForm': commentForm,
+                    'blog_post': blog_post,
+                    'user' : user,
+                    'comments': comments
+                    }
+            return render_template('blog_post.html',ret=ret)
+        else :
+            body = commentForm.body.data
+            user_id = session['user_id']
+            comment = Blog_comment(body, user_id, blog_post_id)
+            db.session.add(comment)
+            db.session.commit()
+            return redirect(url_for('blog_post',blog_post_id=blog_post_id))
+
 
 @app.route('/activity')
 def activity():

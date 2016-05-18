@@ -129,3 +129,12 @@ class Blog_tag(db.Model):
 
     def __init__(self, tag_name):
         self.tag_name   = tag_name
+
+class Blog_post_has_blog_tag(db.Model):
+    __tablename__       = 'blog_post_has_blog_tag'
+    blog_post_id        = db.Column(db.Integer, primary_key=True)
+    blog_tag_id         = db.Column(db.Integer, primary_key=True)
+
+    def __init__(self, blog_post_id, blog_tag_id):
+        self.blog_post_id   = blog_post_id
+        self.blog_tag_id    = blog_tag_id

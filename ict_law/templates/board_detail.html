@@ -21,6 +21,9 @@ form select#category {
     box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.1);
     border-radius: 3px;
 }
+.bs-docs-section img {
+    border: 0px;
+}
 </style>
 <div class="main" >
     <div class="container bs-docs-container">
@@ -34,7 +37,7 @@ form select#category {
                     </h1>
                     <h5>작성자 {{ret.user.username}} &nbsp; | &nbsp; 카테고리 <a href="/board/{{ret.board_category.id}}">{{ret.board_category.category_name}}</a> &nbsp; | &nbsp; {{ ret.board.created_at }}</h5>
                     <div class="form" style="border-bottom: 1px dashed #cccccc;padding-bottom:20px;">
-                        <div id="post_body" class="summernote" style="overflow-x: hidden;">
+                        <div id="post_body" class="summernote" style="word-wrap: break-word;">
                         </div>
                     </div>
                     <div id="post_comments" style="padding-top:20px;">
@@ -45,13 +48,13 @@ form select#category {
                             {{ ret.commentForm.hidden_tag() }}
                             <div class="form-box">
                                 <h5>댓글 작성자 {{ session['username'] }}</h5>
-                                <div  style="display:table-cell;width:100%;padding-right:10px;">
+                                <div  style="width:100%;">
                                     {% for message in ret.commentForm.body.errors %}
                                     <div class="flash">{{ message }}</div>
                                     {% endfor %}
                                     {{ ret.commentForm.body(class_="form-control",placeholder="댓글 입력 ...") }}
                                 </div>
-                                <div style="display:table-cell;">
+                                <div class="pull-right" style="padding-top:10px;;">
                                     <button type="submit" class="btn btn-primary">댓글쓰기</button>
                                 </div>
                             </div>
@@ -73,9 +76,15 @@ form select#category {
                                         <p>
                                         {{ comment.comment.body }}
                                         </p>
+                                        <div class="pull-right">
+                                            {% if session['user_id'] == comment.user.id or session['level'] == 99 %}
+                                            <button class="btn btn-danger" data-toggle="modal" data-target="#delete-comment-modal-{{comment.comment.id}}">댓글 삭제</button>
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            {% include "delete_comment_confirm_modal.html" %}
                             {% endfor %}
                         </div>
                     </div>
@@ -122,6 +131,24 @@ form select#category {
                         </a>
                         </li>
                         {% endif %}
+                        {% if 'logged_in' in session and (session['user_id'] == ret.user.id or session['level'] == 99) %}
+                        <li>
+                        <a href="/edit_board/{{ret.board.id}}">
+                            <i class="fa fa-pencil-square" aria-hidden="true"></i>
+                            &nbsp;
+                            수정하기
+                        </a>
+                        </li>
+                        {% endif %}
+                        {% if 'logged_in' in session and (session['user_id'] == ret.user.id or session['level'] == 99) %}
+                        <li>
+                        <a href="#" data-toggle="modal" data-target="#delete-modal"> 
+                            <i class="fa fa-trash-o" aria-hidden="true"></i>
+                            &nbsp;
+                            삭제하기
+                        </a>
+                        </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>
@@ -135,6 +162,19 @@ $(document).ready(function() {
     $('body').attr('data-spy','scroll').attr('data-target','.bs-docs-sidebar');
     var html = "{{ ret.board.body }}";
     $('#post_body').html($('<div/>').html(html).text());
+    $('#delete-button').click(function() {
+        $.ajax({
+            url: '/delete_board/{{ret.board.id}}',
+            type: 'POST',
+            success: function(response) {
+            console.log(response);
+            window.location.href = "/board/0";
+            },
+            error: function(error){
+            console.log(error);
+            }
+        });
+    });
 });
 </script>
 {% endblock %}

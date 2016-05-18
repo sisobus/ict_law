@@ -1,5 +1,6 @@
 ict_law/venv/*
 ict_law/*.pyc
 ict_law/static/files/*
+*.swp
 
 

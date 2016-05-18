@@ -24,8 +24,10 @@
     body {
         font-family: "Nanum Gothic", sans-serif;
     }
+    .tag-container{font-size:14px;color:#666;background:#ebebeb;display:inline-block;line-height:100%;padding:6px 5px;margin:1px 0 1px 0;text-decoration:none;border-radius:99px;-moz-border-radius:99px;-webkit-border-radius:99px;}.tag-container:hover{background:#dbdbdb;}
     </style>
 </head>
+{% include "delete_confirm_modal.html" %}
 <body class="collapsing_header">
     <header>
     <div class="container">
@@ -50,6 +52,7 @@
                     <li {% if session['nav_page_id'] == 2 %}class="active"{% endif %}><a href="/activity">ICT 활동</a></li>
                     <li {% if session['nav_page_id'] == 3 %}class="active"{% endif %}><a href="/databook">자료</a></li>
                     <li {% if session['nav_page_id'] == 4 %}class="active"{% endif %}><a href="/board/0">게시판</a></li>
+                    <li {% if session['nav_page_id'] == 5 %}class="active"{% endif %}><a href="/blog">블로그</a></li>
                     <!--
                     <li class="dropdown"> <a data-toggle="dropdown" class="dropdown-toggle" href="#">Pages<span class="caret"></span></a>
                     <ul class="dropdown-menu">

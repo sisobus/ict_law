@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+
+.pagination-page-info {
+    padding: .6em;
+    padding-left: 0;
+    width: 40em;
+    margin: .5em;
+    margin-left: 0;
+    font-size: 12px;
+}
+.pagination-page-info b {
+    color: black;
+    padding-left: 2px;
+    padding: .1em .25em;
+    font-size: 150%;
+}
+</style>
+<div class="main" >
+    <div class="container bs-docs-container">
+        <div class="row">
+            <div class="col-md-9">
+                <div class="bs-docs-section">
+                    <h1 id="notice" class="page-header">
+                        <i class="fa fa-bookmark" aria-hidden="true"></i>
+                        &nbsp;
+                        블로그
+                        {% if session['level'] == 99 %}
+                        <a href="/write_blog_post">
+                            <button class="btn btn-primary">
+                                블로그 글쓰기
+                            </button>
+                        </a>
+                        {% endif %}
+                    </h1>
+                        {{ ret.pagination.info }}
+                        {% for blog_post in ret.blog_posts %}
+                        <style>
+#post_body_{{blog_post.blog_post.id}}:after {
+    content: '...';
+    display: block;
+    position: absolute;
+    bottom: 6px;
+    right: 10px;
+    background: #FFF;
+}
+                        </style>
+                        <article class="post">
+                            <div class="post_header">
+                                <h3 class="post_title">
+                                    <a href="/blog_post/{{blog_post.blog_post.id}}">
+                                        {{ blog_post.blog_post.title }}
+                                    </a>
+                                </h3>
+                                <div class="post_sub">
+                                    <i class="fa-time"></i> {{blog_post.blog_post.created_at}}
+                                    <a href="/blog_post/{{blog_post.blog_post.id}}#post_comments">
+                                        {{ blog_post.comments | length}} comments
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="post_content">
+                                <div id="post_body_{{blog_post.blog_post.id}}" class="summernote" style="overflow-x: hidden;padding-top:20px;padding-bottom:20px;overflow-y:hidden;text-overflow:ellipsis;max-height:400px;">
+                                </div>
+                                <a href="/blog_post/{{blog_post.blog_post.id}}" class="btn btn-primary">Read More</a> 
+                            </div>
+                        </article>
+                        {% endfor %}
+                    <center>
+                        {{ ret.pagination.links }}
+                    </center>
+                </div>
+            </div>
+            <div class="col-md-3 hidden-sm hidden-xs">
+                <div class="bs-docs-sidebar hidden-print affix-top" role="complementary" data-spy="affix" data-offset-top="164"> 
+                    <h4 style="padding-left:10px;">
+                        블로그 최신 글
+                    </h4>
+                    <ul class="nav bs-docs-sidenav">
+                        {% for recent_blog_post in ret.recent_blog_posts %}
+                        <li>
+                            <a href="/blog_post/{{recent_blog_post.id}}">
+                                {{ recent_blog_post.title[:30] }} ...
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <h4 style="padding-left:10px;">
+                        <i class="fa fa-tags"></i> 태그
+                    </h4>
+                    <div style="padding-left:10px;">
+                        {% for blog_tag in ret.blog_tags %}
+                        <div class="tag-container">
+                            {{ blog_tag.tag_name }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <h4 style="padding-left:10px;padding-top:10px;">
+                        추천 블로그
+                    </h4>
+                    <ul class="nav bs-docs-sidenav">
+                        <li>
+                        <a href="https://chillingcompetition.com">chillingcompetition</a>
+                        </li>
+                        <li>
+                        <a href="https://truthonthemarket.com/">truth on the market</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script>
+$(document).ready(function() {
+    $('body').attr('data-spy','scroll').attr('data-target','.bs-docs-sidebar');
+    $('.pagination ul').addClass('pagination');
+    {% for blog_post in ret.blog_posts %}
+        var html = "{{blog_post.blog_post.body}}";
+        $('#post_body_{{blog_post.blog_post.id}}').html($('<div/>').html(html).text());
+    {% endfor %}
+});
+</script>
+{% endblock %}
