@@ -3,6 +3,7 @@ from flask import Flask, url_for
 from flask.ext.paginate import Pagination
 from werkzeug import secure_filename
 from werkzeug.datastructures import ImmutableMultiDict 
+from werkzeug.datastructures import FileStorage
 from sqlalchemy import func
 
 from config import UPLOAD_FOLDER, ICT_DATABASE_URI, ICT_SECRET_KEY
@@ -58,7 +59,15 @@ def load_user(user_id):
 @app.route('/')
 def home():
     session['nav_page_id'] = 0
-    return render_template('home.html')
+    events = Event.query.order_by(Event.created_at.desc()).limit(5)
+    notices = Board.query.filter_by(category_id=1).limit(5)
+    blog_posts = Blog_post.query.order_by(Blog_post.created_at.desc()).limit(5)
+    ret = {
+            'events': events,
+            'notices': notices,
+            'blog_posts': blog_posts
+            }
+    return render_template('home.html',ret=ret)
 
 @app.route('/register',methods=['GET'])
 def register():
@@ -179,6 +188,34 @@ def get_board_information(boards):
         ret.append(d)
     return ret
 
+def get_event_information(events):
+    ret = []
+    for event in events:
+        user = User.query.filter_by(id=event.user_id).first()
+        image = Image.query.filter_by(id=event.image_id).first()
+        image_path = utils.get_image_path(image.image_path)
+        d = {
+                'user': user,
+                'event': event,
+                'image_path': image_path
+                }
+        ret.append(d)
+    return ret
+
+def get_publication_information(publications):
+    ret = []
+    for publication in publications:
+        user = User.query.filter_by(id=publication.user_id).first()
+        image = Image.query.filter_by(id=publication.image_id).first()
+        image_path = utils.get_image_path(image.image_path)
+        d = {
+                'user': user,
+                'publication': publication,
+                'image_path': image_path
+                }
+        ret.append(d)
+    return ret
+
 def get_comment_by_board_id(board_id):
     comments = Comment.query.filter_by(board_id=board_id).order_by(Comment.created_at.asc()).all()
     return comments
@@ -286,13 +323,19 @@ def board(category_id):
         total_count = Board.query.filter_by(category_id=category_id).count()
     pagination = Pagination(page=page, total=total_count, search=search, record_name='board', per_page=per_page)
     boards = get_board_information(boards)
+    if category_id != 1 :
+        notices = Board.query.filter_by(category_id=1).order_by(Board.created_at.desc()).all()
+        notices = get_board_information(notices)
+    else:
+        notices = []
 
 
     ret = {
             'board_category_list': board_category_list,
             'board_category': cur_board_category,
             'boards': boards,
-            'pagination': pagination
+            'pagination': pagination,
+            'notices': notices
             }
     return render_template('board.html',ret=ret)
 
@@ -345,7 +388,7 @@ def save_edit_board(board_id):
             return render_template('board_edit.html',ret=ret)
         else :
             board.title = writeBoardForm.title.data
-            board.body  = request.form['board_body']
+            board.body  = request.form['board_body'].strip()
             board.category_id = writeBoardForm.category.data
             db.session.commit()
             return redirect(url_for('board_detail',board_id=board.id))
@@ -385,10 +428,31 @@ def delete_blog_post(blog_post_id):
     for blog_comment in blog_comments:
         db.session.delete(blog_comment)
         db.session.commit()
+    blog_post_has_blog_tags = Blog_post_has_blog_tag.query.filter_by(blog_post_id=blog_post_id).all()
+    for blog_post_has_blog_tag in blog_post_has_blog_tags:
+        db.session.delete(blog_post_has_blog_tag)
+        db.session.commit()
     blog_post = Blog_post.query.filter_by(id=blog_post_id).first()
     db.session.delete(blog_post)
     db.session.commit()
     return json.dumps({'message':'delete success'})
+
+@app.route('/delete_activity/<int:event_id>',methods=['POST'])
+@login_required
+def delete_activity(event_id):
+    event = Event.query.filter_by(id=event_id).first()
+    db.session.delete(event)
+    db.session.commit()
+    return json.dumps({'message':'delete success'})
+
+@app.route('/delete_databook/<int:publication_id>',methods=['POST'])
+@login_required
+def delete_databook(publication_id):
+    publication = Publication.query.filter_by(id=publication_id).first()
+    db.session.delete(publication)
+    db.session.commit()
+    return json.dumps({'message':'delete success'})
+
 
 
 @app.route('/save_board',methods=['POST'])
@@ -409,7 +473,7 @@ def save_board():
             title       = writeBoardForm.title.data
             category_id = writeBoardForm.category.data
             user_id     = session['user_id']
-            body        = request.form['board_body']
+            body        = request.form['board_body'].strip()
             print body
             new_board   = Board(title, body, category_id, user_id)
             db.session.add(new_board)
@@ -514,7 +578,8 @@ def save_edit_blog_post(blog_post_id):
             return render_template('edit_blog_post.html',ret=ret)
         else:
             blog_post.title       = writeBlogPostForm.title.data
-            blog_post.body        = request.form['board_body']
+            blog_post.body        = request.form['board_body'].strip()
+            blog_post.body        = blog_post.body.replace('\n','')
             db.session.commit()
             tags        = writeBlogPostForm.tags.data
             blog_post_has_blog_tags = Blog_post_has_blog_tag.query.filter_by(blog_post_id=blog_post.id).all()
@@ -548,7 +613,7 @@ def save_blog_post():
         else:
             title       = writeBlogPostForm.title.data
             user_id     = session['user_id']
-            body        = request.form['board_body']
+            body        = request.form['board_body'].strip()
             new_blog_post = Blog_post(title, body, user_id)
             db.session.add(new_blog_post)
             db.session.commit()
@@ -632,7 +697,26 @@ def save_blog_comment():
 @app.route('/activity')
 def activity():
     session['nav_page_id'] = 2
-    return render_template('activity.html')
+
+    search = False
+    per_page = 10 
+    q = request.args.get('q')
+    if q:
+        search = True
+    try:
+        page = int(request.args.get('page', 1))
+    except ValueError:
+        page = 1
+    
+    events = Event.query.order_by(Event.created_at.desc()).limit(per_page).offset((page-1)*per_page)
+    total_count = Event.query.count()
+    pagination = Pagination(page=page, total=total_count, search=search, record_name='activity', per_page=per_page)
+    events = get_event_information(events)
+    ret = {
+            'events': events,
+            'pagination': pagination 
+            }
+    return render_template('activity.html',ret=ret)
 
 @app.route('/write_activity')
 def write_activity():
@@ -671,7 +755,7 @@ def save_activity():
                     db.session.commit()
 
                     title = eventForm.title.data
-                    body = request.form['board_body']
+                    body = request.form['board_body'].strip()
                     user_id = session['user_id']
                     image_id = image.id
 
@@ -682,10 +766,178 @@ def save_activity():
                 else:
                     return json.dumps({'status':'error','message':'extention error'})
 
+@app.route('/edit_activity/<int:event_id>')
+@login_required
+def edit_activity(event_id):
+    session['nav_page_id'] = 2
+    with app.app_context():
+        eventForm = EventForm()
+    event = Event.query.filter_by(id=event_id).first()
+    eventForm.title.data = event.title
+    ret = {
+            'eventForm':eventForm,
+            'event': event,
+            }
+    return render_template('edit_activity.html',ret=ret)
+
+@app.route('/save_edit_activity/<int:event_id>',methods=['POST'])
+@login_required
+def save_edit_activity(event_id):
+    with app.app_context():
+        eventForm = EventForm()
+    event = Event.query.filter_by(id=event_id).first()
+    ret = {
+            'eventForm':eventForm,
+            'event': event
+            }
+    if request.method == 'POST':
+        if not eventForm.validate():
+            return render_template('edit_activity.html',ret=ret)
+        else:
+            if eventForm.validate_on_submit():
+                filename = secure_filename(eventForm.filename.data.filename)
+                if utils.allowedFile(filename):
+                    directory_name = utils.convert_email_to_directory_name(session['email'])
+                    directory_url = os.path.join(app.config['UPLOAD_FOLDER'],directory_name)
+                    utils.createDirectory(directory_url)
+                    file_path = os.path.join(directory_url,filename.split('.')[0]+'-'+str(datetime.now()).replace(' ','-')+'.'+filename.split('.')[-1])
+                    eventForm.filename.data.save(file_path)
+                    image = Image(file_path, session['user_id'])
+                    db.session.add(image)
+                    db.session.commit()
+
+                    event.title = eventForm.title.data
+                    event.body = request.form['board_body'].strip()
+                    event.image_id = image.id
+
+                    db.session.commit()
+                    return redirect(url_for('activity'))
+                else:
+                    return json.dumps({'status':'error','message':'extention error'})
+
 @app.route('/databook')
 def databook():
     session['nav_page_id'] = 3
-    return render_template('databook.html')
+
+    search = False
+    per_page = 10 
+    q = request.args.get('q')
+    if q:
+        search = True
+    try:
+        page = int(request.args.get('page', 1))
+    except ValueError:
+        page = 1
+    
+    publications = Publication.query.order_by(Publication.created_at.desc()).limit(per_page).offset((page-1)*per_page)
+    total_count = Publication.query.count()
+    pagination = Pagination(page=page, total=total_count, search=search, record_name='publications', per_page=per_page)
+    publications = get_publication_information(publications)
+    ret = {
+            'publications': publications,
+            'pagination': pagination 
+            }
+
+
+    return render_template('databook.html',ret=ret)
+
+@app.route('/write_databook')
+def write_databook():
+    session['nav_page_id'] = 3
+    with app.app_context():
+        publicationForm = PublicationForm()
+
+    ret = {
+            'publicationForm': publicationForm  
+            }
+    return render_template('write_databook.html',ret=ret)
+
+@app.route('/save_databook',methods=['POST'])
+@login_required
+def save_databook():
+    session['nav_page_id'] = 3
+    with app.app_context():
+        publicationForm = PublicationForm()
+    ret = {
+            'publicationForm': publicationForm  
+            }
+    if request.method == 'POST':
+        if not publicationForm.validate():
+            return render_template('write_databook.html',ret=ret)
+        else:
+            if publicationForm.validate_on_submit():
+                filename = secure_filename(publicationForm.filename.data.filename)
+                if utils.allowedFile(filename):
+                    directory_name = utils.convert_email_to_directory_name(session['email'])
+                    directory_url = os.path.join(app.config['UPLOAD_FOLDER'],directory_name)
+                    utils.createDirectory(directory_url)
+                    file_path = os.path.join(directory_url,filename.split('.')[0]+'-'+str(datetime.now()).replace(' ','-')+'.'+filename.split('.')[-1])
+                    publicationForm.filename.data.save(file_path)
+                    image = Image(file_path, session['user_id'])
+                    db.session.add(image)
+                    db.session.commit()
+
+                    title = publicationForm.title.data
+                    body = request.form['board_body'].strip()
+                    user_id = session['user_id']
+                    image_id = image.id
+
+                    new_event = Publication(title,body,user_id,image_id)
+                    db.session.add(new_event)
+                    db.session.commit()
+                    return redirect(url_for('databook'))
+                else:
+                    return json.dumps({'status':'error','message':'extention error'})
+
+@app.route('/edit_databook/<int:publication_id>')
+@login_required
+def edit_databook(publication_id):
+    session['nav_page_id'] = 3
+    with app.app_context():
+        publicationForm = PublicationForm()
+    publication = Publication.query.filter_by(id=publication_id).first()
+    publicationForm.title.data = publication.title
+    ret = {
+            'publicationForm': publicationForm,
+            'publication': publication
+            }
+    return render_template('edit_databook.html',ret=ret)
+
+@app.route('/save_edit_databook/<int:publication_id>',methods=['POST'])
+@login_required
+def save_edit_databook(publication_id):
+    with app.app_context():
+        publicationForm = PublicationForm()
+    publication = Publication.query.filter_by(id=publication_id).first()
+    ret = {
+            'publicationForm': publicationForm,
+            'publication': publication
+            }
+    if request.method == 'POST':
+        if not publicationForm.validate():
+            return render_template('edit_databook.html',ret=ret)
+        else:
+            if publicationForm.validate_on_submit():
+                filename = secure_filename(publicationForm.filename.data.filename)
+                if utils.allowedFile(filename):
+                    directory_name = utils.convert_email_to_directory_name(session['email'])
+                    directory_url = os.path.join(app.config['UPLOAD_FOLDER'],directory_name)
+                    utils.createDirectory(directory_url)
+                    file_path = os.path.join(directory_url,filename.split('.')[0]+'-'+str(datetime.now()).replace(' ','-')+'.'+filename.split('.')[-1])
+                    publicationForm.filename.data.save(file_path)
+                    image = Image(file_path, session['user_id'])
+                    db.session.add(image)
+                    db.session.commit()
+
+                    publication.title = publicationForm.title.data
+                    publication.body = request.form['board_body'].strip()
+                    publication.image_id = image.id
+
+                    db.session.commit()
+                    return redirect(url_for('databook'))
+                else:
+                    return json.dumps({'status':'error','message':'extention error'})
+
 
 @app.route('/test')
 def test():

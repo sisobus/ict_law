@@ -96,6 +96,7 @@ form select#category {
             </div>
             <div class="col-md-3 hidden-sm hidden-xs">
                 <div class="bs-docs-sidebar hidden-print affix-top" role="complementary" data-spy="affix" data-offset-top="164"> 
+                    {% if 'logged_in' in session and (session['user_id'] == ret.blog_post.user_id or session['level'] == 99) %}
                     <ul class="nav bs-docs-sidenav">
                         <li>
                         <a href="/edit_blog_post/{{ret.blog_post.id}}">
@@ -110,6 +111,7 @@ form select#category {
                         </a>
                         </li>
                     </ul>
+                    {% endif %}
                     <h4 style="padding-left:10px;">
                         블로그 최신 글
                     </h4>

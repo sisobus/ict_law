@@ -66,8 +66,36 @@
                             </tr>
                         </thead>
                         <tbody>
+                        {% for board in ret.notices %}
+                        <tr class="danger"> 
+                                <th scope="row">
+                                    {{ board.board.id }}
+                                </th>
+                                <td>
+                                    <a href="/board_detail/{{board.board.id}}">
+                                        {{ board.board.title }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {{ board.user.username }}
+                                </td>
+                                <td>
+                                    {{ board.comments | length }}
+                                </td>
+                                <td>
+                                    0
+                                </td>
+                                <td>
+                                    {{ board.board.created_at.strftime('%Y-%m-%d') }}
+                                </td>
+                            </tr>
+
+                        {% endfor %}
                         {% for board in ret.boards %}
+                        <!--
                         <tr {% if board.board.category_id == 1 %}class="danger"{%endif %}>
+                        -->
+                        <tr> 
                                 <th scope="row">
                                     {{ board.board.id }}
                                 </th>

@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="main">
+    <section class="hgroup ">
+        <div class="container" style="margin-bottom:60px;">
+            <h1>
+                ICT 활동 수정하기
+            </h1>
+            <h2>
+                대표사진, 제목, 글 내용은 필수입니다.
+            </h2>
+            <ul class="breadcrumb pull-right">
+                <li>
+                <a href="/">Home</a>
+                </li>
+                <li class="active">
+                ICT 활동
+                </li>
+            </ul>
+        </div>
+    </section>
+    <section class="service_teasers">
+        <div class="container">
+            <div class="service_teaser" style="border-bottom:1px solid #cccccc;padding-bottom:40px;">
+                <form action="/save_edit_activity/{{ret.event.id}}" method="post" enctype="multipart/form-data">
+                    {{ ret.eventForm.hidden_tag() }}
+                    <div class="service_photo col-sm-4 col-md-4">
+                        (필수)대표 사진을 올려주세요
+                        <div class="flash">보안상의 문제로 수정하시려면 이미지를 새로 첨부해야합니다.</div>
+                        {% for message in ret.eventForm.filename.errors %}
+                        <div class="flash">{{message}}</div>
+                        {% endfor %}
+                        {{ ret.eventForm.filename}}
+
+                    </div>
+                    <div class="service_details col-sm-8 col-md-8">
+                        {% for message in ret.eventForm.title.errors %}
+                        <div class="flash">{{message}}</div>
+                        {% endfor %}
+                        {{ ret.eventForm.title(class_="form-control",placeholder="활동 제목") }}
+
+                        <style>
+                        .note-editor.note-frame {
+                            border: 1px solid #cccccc;
+                            margin-top:10px;
+                            margin-bottom:10px;
+                        }
+                        .bs-docs-section img {
+                            border:0;
+                        }
+                        </style>
+                        <textarea id="summernote" name="board_body" style="text-align:left;">
+                        </textarea>
+                        <button type="submit" class="btn btn-primary pull-right" style="color:white;">
+                            작성하기
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+    {% include "footer.html" %}
+</div>
+<script>
+function sendFile(file) {
+    var formData = new FormData()
+    formData.append("file",file);
+    var fileData = URL.createObjectURL(file);
+//    $('#summernote').summernote('insertImage', fileData,function ($image) {
+        console.log(formData);
+        $.ajax({
+            url: "/post_image_save",
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            dataType:"json",
+            type: 'POST',
+            success: function(data){
+                console.log(data);
+                $('#summernote').summernote("insertImage", '/static/'+data.url);
+    //            $image.attr('src', '/static/'+data.url);
+      //          $image.attr('style', 'width:100%;'); 
+            },
+            error: function(error) {
+                console.log(error);
+  //              $image.attr('src','?');
+            }
+        });
+//    });
+}
+$(document).ready(function() {
+    $('body').attr('data-spy','scroll').attr('data-target','.bs-docs-sidebar');
+    $('#category option[value=0]').attr('disabled','true');
+    $('#category option[value=2]').attr('selected','true');
+    $('#summernote').summernote({
+    height: 400,
+    lang: 'ko-KR',
+    callbacks: {
+        onImageUpload: function(files) {
+            sendFile(files[0]);
+        }
+    }
+    });
+    var html = "{{ret.event.body}}";
+    $('#summernote').html($('<div/>').html(html).text());
+    $('.panel-body').html($('<div/>').html(html).text());
+});
+</script>
+{% endblock %}

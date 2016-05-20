@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+
+.pagination-page-info {
+    padding: .6em;
+    padding-left: 0;
+    width: 40em;
+    margin: .5em;
+    margin-left: 0;
+    font-size: 12px;
+}
+.pagination-page-info b {
+    color: black;
+    padding-left: 2px;
+    padding: .1em .25em;
+    font-size: 150%;
+}
+</style>
+<div class="main" >
+    <div class="container bs-docs-container">
+        <div class="row">
+            <div class="col-md-10">
+                <div class="bs-docs-section">
+                    <h1 id="notice" class="page-header" style="margin-bottom:50px;">
+                        <i class="fa fa-book"></i>
+                        &nbsp;
+                        발간물 수정하기 
+                    </h1>
+                    <section class="service_teasers">
+                        <div class="service_teaser" style="border-bottom:1px solid #cccccc;padding-bottom:40px;">
+                            <form action="/save_edit_databook/{{ret.publication.id}}" method="post" enctype="multipart/form-data">
+                                {{ ret.publicationForm.hidden_tag() }}
+                            <div class="service_photo col-sm-4 col-md-4">
+                                (필수)대표 사진을 올려주세요
+                                <div class="flash">보안상의 문제로 수정하시려면 이미지를 새로 첨부해야합니다.</div>
+                                {% for message in ret.publicationForm.filename.errors %}
+                                <div class="flash">{{message}}</div>
+                                {% endfor %}
+                                {{ ret.publicationForm.filename }}
+                            </div>
+                            <div class="service_details col-sm-8 col-md-8">
+                                {% for message in ret.publicationForm.title.errors %}
+                                <div class="flash">{{message}}</div>
+                                {% endfor %}
+                                {{ ret.publicationForm.title(class_="form-control",placeholder="발간물 제목") }}
+                                <style>
+                                .note-editor.note-frame {
+                                border: 1px solid #cccccc;
+                                margin-top:10px;
+                                margin-bottom:10px;
+                                }
+                                .bs-docs-section img {
+                                border:0;
+                                }
+                                </style>
+                                <textarea id="summernote" name="board_body" style="text-align:left;">
+                                </textarea>
+                                <button type="submit" class="btn btn-primary pull-right" style="color:white;">
+                                    작성하기
+                                </button>
+                            </div>
+                            </form>
+                        </div>
+                    </section>
+                </div>
+            </div>
+            <div class="col-md-2 hidden-sm hidden-xs">
+                <div class="bs-docs-sidebar hidden-print affix-top" role="complementary" data-spy="affix" data-offset-top="164"> 
+                </div>
+            </div>
+
+        </div>
+    </div>
+    {% include "footer.html" %}
+</div>
+<script>
+function sendFile(file) {
+    var formData = new FormData()
+    formData.append("file",file);
+    var fileData = URL.createObjectURL(file);
+//    $('#summernote').summernote('insertImage', fileData,function ($image) {
+        console.log(formData);
+        $.ajax({
+            url: "/post_image_save",
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            dataType:"json",
+            type: 'POST',
+            success: function(data){
+                console.log(data);
+                $('#summernote').summernote("insertImage", '/static/'+data.url);
+    //            $image.attr('src', '/static/'+data.url);
+      //          $image.attr('style', 'width:100%;'); 
+            },
+            error: function(error) {
+                console.log(error);
+  //              $image.attr('src','?');
+            }
+        });
+//    });
+}
+$(document).ready(function() {
+    $('body').attr('data-spy','scroll').attr('data-target','.bs-docs-sidebar');
+    $('.pagination ul').addClass('pagination');
+    $('#summernote').summernote({
+    height: 400,
+    lang: 'ko-KR',
+    callbacks: {
+        onImageUpload: function(files) {
+            sendFile(files[0]);
+        }
+    }
+    });
+    var html = "{{ret.publication.body}}";
+    $('#summernote').html($('<div/>').html(html).text());
+    $('.panel-body').html($('<div/>').html(html).text());
+});
+</script>
+{% endblock %}

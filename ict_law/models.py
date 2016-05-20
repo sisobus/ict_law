@@ -68,7 +68,7 @@ class Board(db.Model):
     __tablename__       = 'board'
     id                  = db.Column(db.Integer, primary_key=True)
     title               = db.Column(db.String(200))
-    body                = db.Column(db.String(3000))
+    body                = db.Column(db.Text)
     created_at          = db.Column(db.DateTime)
     category_id         = db.Column(db.Integer, db.ForeignKey('board_category.id'))
     user_id             = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -98,7 +98,7 @@ class Blog_post(db.Model):
     __tablename__       = 'blog_post'
     id                  = db.Column(db.Integer, primary_key=True)
     title               = db.Column(db.String(500))
-    body                = db.Column(db.String(5000))
+    body                = db.Column(db.Text)
     created_at          = db.Column(db.DateTime)
     user_id             = db.Column(db.Integer, db.ForeignKey('user.id'))
 
@@ -143,7 +143,7 @@ class Event(db.Model):
     __tablename__       = 'event'
     id                  = db.Column(db.Integer, primary_key=True)
     title               = db.Column(db.String(500))
-    body                = db.Column(db.String(5000))
+    body                = db.Column(db.Text)
     created_at          = db.Column(db.DateTime)
     user_id             = db.Column(db.Integer, db.ForeignKey('user.id'))
     image_id            = db.Column(db.Integer, db.ForeignKey('image.id'))
@@ -159,7 +159,7 @@ class Publication(db.Model):
     __tablename__       = 'publication'
     id                  = db.Column(db.Integer, primary_key=True)
     title               = db.Column(db.String(500))
-    body                = db.Column(db.String(5000))
+    body                = db.Column(db.Text)
     created_at          = db.Column(db.DateTime)
     user_id             = db.Column(db.Integer, db.ForeignKey('user.id'))
     image_id            = db.Column(db.Integer, db.ForeignKey('image.id'))
