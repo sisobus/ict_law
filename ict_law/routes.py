@@ -1069,6 +1069,36 @@ def datafiles():
    
     return render_template('datafiles.html',ret=ret)
 
+@app.route('/introduction')
+def introduction():
+    session['nav_page_id'] = 1
+    session['intro_nav_id'] = 0
+    return render_template('introduction.html')
+
+@app.route('/introduction_2')
+def introduction_2():
+    session['nav_page_id'] = 1
+    session['intro_nav_id'] = 2
+    return render_template('introduction_2.html')
+
+@app.route('/introduction_3')
+def introduction_3():
+    session['nav_page_id'] = 1
+    session['intro_nav_id'] = 3
+    return render_template('introduction_3.html')
+
+@app.route('/introduction_4')
+def introduction_4():
+    session['nav_page_id'] = 1
+    session['intro_nav_id'] = 4
+    return render_template('introduction_4.html')
+
+@app.route('/introduction_5')
+def introduction_5():
+    session['nav_page_id'] = 1
+    session['intro_nav_id'] = 5
+    return render_template('introduction_5.html')
+
 @app.route('/test')
 def test():
     return render_template('test.html')

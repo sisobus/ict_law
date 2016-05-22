@@ -1,0 +1,29 @@
+<div class="bs-docs-sidebar hidden-print affix-top" role="complementary" data-spy="affix" data-offset-top="164">
+    <ul class="nav bs-docs-sidenav">
+        <li {% if session['intro_nav_id'] == 0 %}class="active"{% endif %}>
+        <a href="/introduction">
+            소장 소개
+        </a>
+        </li>
+        <li  {% if session['intro_nav_id'] == 2 %}class="active"{% endif %}>
+        <a href="/introduction_2">
+            연구소 소개(CI 소개)
+        </a>
+        </li>
+        <li  {% if session['intro_nav_id'] == 3 %}class="active"{% endif %}>
+        <a href="/introduction_3">
+            연혁
+        </a>
+        </li>
+        <li  {% if session['intro_nav_id'] == 4 %}class="active"{% endif %}>
+        <a href="/introduction_4">
+            조직도
+        </a>
+        </li>
+        <li  {% if session['intro_nav_id'] == 5 %}class="active"{% endif %}>
+        <a href="/introduction_5">
+            연구위원
+        </a>
+        </li>
+    </ul>
+</div>

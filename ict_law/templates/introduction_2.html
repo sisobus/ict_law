@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+
+.pagination-page-info {
+    padding: .6em;
+    padding-left: 0;
+    width: 40em;
+    margin: .5em;
+    margin-left: 0;
+    font-size: 12px;
+}
+.pagination-page-info b {
+    color: black;
+    padding-left: 2px;
+    padding: .1em .25em;
+    font-size: 150%;
+}
+</style>
+<div class="main" >
+    <div class="container bs-docs-container">
+        <div class="row">
+            <div class="col-md-10">
+                <div class="bs-docs-section">
+                    <h1 id="notice" class="page-header" style="margin-bottom:50px;">
+                        연구소 소개 
+                    </h1>
+                </div>
+                <center>
+                <img src="{{url_for('static',filename='/images/icle_logo_1.png')}}" style="width:50%;">
+                </center>
+                <div style="padding-top:20px;">
+                    <p style="font-size:15px; line-height:1.7;">
+                    ICT법경제연구소의 심볼은 정보통신 기술이 지향하는 정보사회 구축을 위해 법과 경제 기반을 보다 논리적, 이성적으로 다져가는 모습으로 이니셜 명칭을 통해 직관적인 메시지를 전달하고자 하였다.<br>
+                    메인 컬러는 열정적이며 창의적인 연구소의 비전을 나타내기 위해 적극적, 진취적인 레드를 사용하였으며<br>
+                    좌측 하단의 ‘ㅇ’은 연구소의 능동적인 인재상과 연구를 통해 발전하는 보다 나은 세계의 모습을 상징화하였다.
+
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-2 hidden-sm hidden-xs">
+                {% include "introduction_navbar.html" %}
+            </div>
+
+        </div>
+    </div>
+    {% include "footer.html" %}
+</div>
+<script>
+$(document).ready(function() {
+    $('body').attr('data-spy','scroll').attr('data-target','.bs-docs-sidebar');
+    $('.pagination ul').addClass('pagination');
+});
+</script>
+{% endblock %}
