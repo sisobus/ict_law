@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+
+.pagination-page-info {
+    padding: .6em;
+    padding-left: 0;
+    width: 40em;
+    margin: .5em;
+    margin-left: 0;
+    font-size: 12px;
+}
+.pagination-page-info b {
+    color: black;
+    padding-left: 2px;
+    padding: .1em .25em;
+    font-size: 150%;
+}
+</style>
+<link rel="stylesheet" href="{{  url_for('static',filename='css/dropzone.css') }}" />
+<script>
+</script>
+<div class="main" >
+    <div class="container bs-docs-container">
+        <div class="row">
+            <div class="col-md-10">
+                <div class="bs-docs-section">
+                    <h1 id="notice" class="page-header" style="margin-bottom:50px;">
+                        <i class="fa fa-book"></i>
+                        &nbsp;
+                        자료 업로드하기
+                    </h1>
+                    <form action="{{ url_for('upload_datafiles') }}" method="POST" enctype="multipart/form-data" class="dropzone" style="border:4px dashed #dddddd;height:400px;">
+                        <div class="dz-message" data-dz-message style="margin:0;margin-top:100px;">
+                            <img src="{{url_for('static',filename='images/cloud-upload-2-128x128.png')}}" style="border:0;"><br>
+                            <span style="color:#cccccc;font-size:15px;"> 파일을 이 곳으로 드래그하세요. </span>
+                            <br>
+                            <span style="color:red;font-size:15px;"> 한글 파일명은 쓸 수 없습니다.</span>
+                        </div>
+                        <div id='uploadme' class="fallback">
+                            <input name="file" type="file" multiple/>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-2 hidden-sm hidden-xs">
+                <div class="bs-docs-sidebar hidden-print affix-top" role="complementary" data-spy="affix" data-offset-top="164"> 
+                    <ul class="nav bs-docs-sidenav">
+                        <li class="active">
+                        <a href="/databook">
+                            <i class="fa fa-book"></i>
+                            &nbsp;
+                            발간물
+                        </a>
+                        </li>
+                        <li>
+                        <a href="/datafiles">
+                            <i class="fa fa-exclamation"></i>
+                            &nbsp;
+                            자료집
+                        </a>
+                        </li>
+                        {% if 'logged_in' in session and (session['level'] == 99) %}
+                        <li>
+                        <a href="/write_datafiles">
+                            <i class="fa fa-pencil"></i>
+                            &nbsp;
+                            자료 업로드하기
+                        </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    {% include "footer.html" %}
+</div>
+<script>
+$(document).ready(function() {
+    $('body').attr('data-spy','scroll').attr('data-target','.bs-docs-sidebar');
+    $('.pagination ul').addClass('pagination');
+});
+</script>
+<script src="{{  url_for('static',filename='js/dropzone.js') }}"></script>
+{% endblock %}

@@ -38,6 +38,7 @@ form select#category {
                     <h5>작성자 {{ret.user.username}} &nbsp; | &nbsp; 카테고리 <a href="/board/{{ret.board_category.id}}">{{ret.board_category.category_name}}</a> &nbsp; | &nbsp; {{ ret.board.created_at }}</h5>
                     <div class="form" style="border-bottom: 1px dashed #cccccc;padding-bottom:20px;">
                         <div id="post_body" class="summernote" style="word-wrap: break-word;">
+                            {{ ret.board.body | safe }}
                         </div>
                     </div>
                     <div id="post_comments" style="padding-top:20px;">
@@ -157,8 +158,6 @@ form select#category {
 <script>
 $(document).ready(function() {
     $('body').attr('data-spy','scroll').attr('data-target','.bs-docs-sidebar');
-    var html = "{{ ret.board.body }}";
-    $('#post_body').html($('<div/>').html(html).text());
     $('#delete-button').click(function() {
         $.ajax({
             url: '/delete_board/{{ret.board.id}}',

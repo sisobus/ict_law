@@ -25,7 +25,8 @@ from models import (
         Blog_tag,
         Blog_post_has_blog_tag,
         Event,
-        Publication
+        Publication,
+        Datafile
         )
 from forms import (
         SignupForm, 
@@ -60,7 +61,7 @@ def load_user(user_id):
 def home():
     session['nav_page_id'] = 0
     events = Event.query.order_by(Event.created_at.desc()).limit(5)
-    notices = Board.query.filter_by(category_id=1).limit(5)
+    notices = Board.query.filter_by(category_id=1).order_by(Board.created_at.desc()).limit(5)
     blog_posts = Blog_post.query.order_by(Blog_post.created_at.desc()).limit(5)
     ret = {
             'events': events,
@@ -198,6 +199,19 @@ def get_event_information(events):
                 'user': user,
                 'event': event,
                 'image_path': image_path
+                }
+        ret.append(d)
+    return ret
+
+def get_datafile_information(datafiles):
+    ret = []
+    for datafile in datafiles:
+        user = User.query.filter_by(id=datafile.user_id).first()
+        file_path = utils.get_image_path(datafile.file_path)
+        d= {
+                'datafile': datafile,
+                'user': user,
+                'file_path': file_path
                 }
         ret.append(d)
     return ret
@@ -529,6 +543,7 @@ def blog_post(blog_post_id):
     all_blog_tags = Blog_tag.query.order_by(Blog_tag.id.desc()).all()
     recent_blog_posts = Blog_post.query.order_by(Blog_post.created_at.desc()).limit(5)
     recent_blog_comments = Blog_comment.query.order_by(Blog_comment.created_at.desc()).limit(5)
+    print blog_post.body
 
     ret = {
             'commentForm': commentForm,
@@ -938,6 +953,53 @@ def save_edit_databook(publication_id):
                 else:
                     return json.dumps({'status':'error','message':'extention error'})
 
+@app.route('/upload_datafiles',methods=['POST'])
+@login_required
+def upload_datafiles():
+    if request.method == 'POST':
+        if request.files:
+            files = request.files
+            for file_key in files:
+                file = request.files[file_key]
+                filename = secure_filename(file.filename)
+                directory_name = utils.convert_email_to_directory_name(session['email'])
+                directory_url = os.path.join(app.config['UPLOAD_FOLDER'],directory_name)
+                utils.createDirectory(directory_url)
+                file_path = os.path.join(directory_url,filename.split('.')[0]+'-'+str(datetime.now()).replace(' ','-')+'.'+filename.split('.')[-1])
+                file.save(file_path)
+                new_datafile = Datafile(file_path, session['user_id'])
+                db.session.add(new_datafile)
+                db.session.commit()
+        return json.dumps({'message':'error'})
+
+@app.route('/write_datafiles')
+@login_required
+def write_datafiles():
+    return render_template('write_datafiles.html')
+
+@app.route('/datafiles')
+@login_required
+def datafiles():
+    search = False
+    per_page = 20 
+    q = request.args.get('q')
+    if q:
+        search = True
+    try:
+        page = int(request.args.get('page', 1))
+    except ValueError:
+        page = 1
+    
+    datafiles = Datafile.query.order_by(Datafile.id.desc()).limit(per_page).offset((page-1)*per_page)
+    total_count = Datafile.query.count()
+    pagination = Pagination(page=page, total=total_count, search=search, record_name='datafile', per_page=per_page)
+    datafiles = get_datafile_information(datafiles)
+    ret = {
+            'datafiles': datafiles,
+            'pagination': pagination 
+            }
+   
+    return render_template('datafiles.html',ret=ret)
 
 @app.route('/test')
 def test():

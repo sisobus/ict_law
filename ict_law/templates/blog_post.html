@@ -35,6 +35,7 @@ form select#category {
                     <h5>작성자 {{ret.user.username}} &nbsp; | &nbsp; {{ ret.blog_post.created_at }}</h5>
                     <div class="form" style="border-bottom: 1px dashed #cccccc;padding-bottom:20px;">
                         <div id="post_body" class="summernote" style="overflow-x: hidden;">
+                            {{ ret.blog_post.body | safe }}
                         </div>
                         <h5>
                             <i class="fa fa-tags"></i> tags &nbsp;
@@ -154,8 +155,6 @@ form select#category {
 <script>
 $(document).ready(function() {
     $('body').attr('data-spy','scroll').attr('data-target','.bs-docs-sidebar');
-    var html = "{{ ret.blog_post.body }}";
-    $('#post_body').html($('<div/>').html(html).text());
     $('#delete-button').click(function() {
         $.ajax({
             url: '/delete_blog_post/{{ret.blog_post.id}}',

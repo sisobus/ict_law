@@ -48,11 +48,8 @@
                                     {% endif %}
                                 </h2>
                                 <div id="post_body-{{publication.publication.id}}" class="summernote" style="word-wrap:break-word;">
+                                    {{ publication.publication.body | safe}}
                                 </div>
-                                <script>
-var html = "{{ publication.publication.body }}";
-$('#post_body-{{publication.publication.id}}').html($('<div/>').html(html).text());
-                                </script>
                             </div>
                         </div>
                         {% endfor %}
@@ -72,13 +69,16 @@ $('#post_body-{{publication.publication.id}}').html($('<div/>').html(html).text(
                             발간물
                         </a>
                         </li>
+                        {% if 'logged_in' in session and (session['level'] == 99) %}
                         <li>
-                        <a href="#">
+                        <a href="/datafiles">
                             <i class="fa fa-exclamation"></i>
                             &nbsp;
                             자료집
                         </a>
                         </li>
+                        {% endif %}
+
                         {% if 'logged_in' in session and (session['level'] == 99) %}
                         <li>
                         <a href="/write_databook">

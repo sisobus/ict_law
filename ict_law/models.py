@@ -170,3 +170,14 @@ class Publication(db.Model):
         self.created_at = datetime.now()
         self.user_id    = user_id
         self.image_id   = image_id
+
+class Datafile(db.Model):
+    __tablename__       = 'datafile'
+    id                  = db.Column(db.Integer, primary_key=True)
+    file_path           = db.Column(db.String(500))
+    created_at          = db.Column(db.DateTime)
+    user_id             = db.Column(db.Integer, db.ForeignKey('user.id'))
+    def __init__(self, file_path, user_id):
+        self.file_path  = file_path
+        self.created_at = datetime.now()
+        self.user_id    = user_id

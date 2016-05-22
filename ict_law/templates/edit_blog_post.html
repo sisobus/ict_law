@@ -41,6 +41,7 @@
                             }
                             </style>
                             <textarea id="summernote" name="board_body" style="text-align:left;">
+                                {{ ret.blog_post.body | safe }}
                             </textarea>
                             {% for message in ret.writeBlogPostForm.tags.errors %}
                             <div class="flash">{{ message }}</div>
@@ -106,9 +107,6 @@ $(document).ready(function() {
         }
     }
     });
-    var html = "{{ret.blog_post.body}}";
-    $('#summernote').html($('<div/>').html(html).text());
-    $('.panel-body').html($('<div/>').html(html).text());
 });
 </script>
 {% endblock %}

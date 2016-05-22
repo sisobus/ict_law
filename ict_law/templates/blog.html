@@ -55,6 +55,7 @@
                             </div>
                             <div class="post_content">
                                 <div id="post_body_{{blog_post.blog_post.id}}" class="summernote" style="overflow-x: hidden;padding-top:20px;padding-bottom:20px;overflow-y:hidden;text-overflow:ellipsis;max-height:400px;">
+                                    {{ blog_post.blog_post.body | safe}}
                                 </div>
                                 <a href="/blog_post/{{blog_post.blog_post.id}}" class="btn btn-primary">Read More</a> 
                             </div>
@@ -121,10 +122,6 @@
 $(document).ready(function() {
     $('body').attr('data-spy','scroll').attr('data-target','.bs-docs-sidebar');
     $('.pagination ul').addClass('pagination');
-    {% for blog_post in ret.blog_posts %}
-        var html = "{{blog_post.blog_post.body}}";
-        $('#post_body_{{blog_post.blog_post.id}}').html($('<div/>').html(html).text());
-    {% endfor %}
 });
 </script>
 {% endblock %}

@@ -46,11 +46,8 @@
                         {% endif %}
                     </h2>
                     <div id="post_body-{{event.event.id}}" class="summernote" style="word-wrap: break-word;">
+                        {{ event.event.body | safe }}
                     </div>
-                    <script>
-var html = "{{ event.event.body }}";
-$('#post_body-{{event.event.id}}').html($('<div/>').html(html).text());
-                    </script>
                 </div>
             </div>
             {% endfor %}

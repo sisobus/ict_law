@@ -50,6 +50,7 @@
                         }
                         </style>
                         <textarea id="summernote" name="board_body" style="text-align:left;">
+                            {{ ret.event.body | safe }}
                         </textarea>
                         <button type="submit" class="btn btn-primary pull-right" style="color:white;">
                             작성하기
@@ -102,9 +103,6 @@ $(document).ready(function() {
         }
     }
     });
-    var html = "{{ret.event.body}}";
-    $('#summernote').html($('<div/>').html(html).text());
-    $('.panel-body').html($('<div/>').html(html).text());
 });
 </script>
 {% endblock %}
