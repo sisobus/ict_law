@@ -96,9 +96,11 @@
                     </h4>
                     <div style="padding-left:10px;">
                         {% for blog_tag in ret.blog_tags %}
-                        <div class="tag-container">
-                            {{ blog_tag.tag_name }}
-                        </div>
+                        <a href="/blog_tag_search/{{blog_tag.tag_name}}">
+                            <div class="tag-container">
+                                {{ blog_tag.tag_name }}
+                            </div>
+                        </a>
                         {% endfor %}
                     </div>
                     <h4 style="padding-left:10px;padding-top:10px;">

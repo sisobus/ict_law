@@ -494,6 +494,53 @@ def save_board():
             db.session.commit()
             return redirect(url_for('board_detail',board_id=new_board.id))
 
+@app.route('/blog_tag_search/<tag_name>')
+def blog_tag_search(tag_name):
+    session['nav_page_id'] = 5
+
+    search = False
+    per_page = 5
+    q = request.args.get('q')
+    if q:
+        search = True
+    try:
+        page = int(request.args.get('page', 1))
+    except ValueError:
+        page = 1
+
+    tag = Blog_tag.query.filter_by(tag_name=tag_name.strip()).first()
+    blog_post_has_blog_tags = Blog_post_has_blog_tag.query.filter_by(blog_tag_id=tag.id).all()
+    list_of_ids = [ blog_post_has_blog_tag.blog_post_id for blog_post_has_blog_tag in blog_post_has_blog_tags ]
+    blog_posts = Blog_post.query.filter(Blog_post.id.in_(list_of_ids))\
+            .order_by(Blog_post.created_at.desc()).limit(per_page).offset((page-1)*per_page)
+    total_count = blog_posts.count()
+    pagination = Pagination(page=page, total=total_count, search=search, record_name='blog_post', per_page=per_page)
+    blog_posts = get_blog_post_information(blog_posts)
+
+    blog_tags = Blog_tag.query.order_by(Blog_tag.id.desc()).all()
+    t = []
+    for all_blog_tag in blog_tags:
+        cnt = Blog_post_has_blog_tag.query.filter_by(blog_tag_id=all_blog_tag.id).count()
+        t.append((all_blog_tag,cnt))
+    t = sorted(t, key=lambda k:k[1], reverse=True)
+    blog_tags = []
+    for tt in t:
+        if len(blog_tags) > 20:
+            break
+        blog_tags.append(tt[0])
+
+    recent_blog_posts = Blog_post.query.order_by(Blog_post.created_at.desc()).limit(5)
+    recent_blog_comments = Blog_comment.query.order_by(Blog_comment.created_at.desc()).limit(5)
+
+    ret = {
+            'blog_posts': blog_posts,
+            'pagination': pagination,
+            'blog_tags': blog_tags,
+            'recent_blog_posts': recent_blog_posts 
+            }
+    return render_template('blog.html',ret=ret)
+
+
 @app.route('/blog')
 def blog():
     session['nav_page_id'] = 5
@@ -514,6 +561,17 @@ def blog():
     blog_posts = get_blog_post_information(blog_posts)
 
     blog_tags = Blog_tag.query.order_by(Blog_tag.id.desc()).all()
+    t = []
+    for all_blog_tag in blog_tags:
+        cnt = Blog_post_has_blog_tag.query.filter_by(blog_tag_id=all_blog_tag.id).count()
+        t.append((all_blog_tag,cnt))
+    t = sorted(t, key=lambda k:k[1], reverse=True)
+    blog_tags = []
+    for tt in t:
+        if len(blog_tags) > 20:
+            break
+        blog_tags.append(tt[0])
+
     recent_blog_posts = Blog_post.query.order_by(Blog_post.created_at.desc()).limit(5)
     recent_blog_comments = Blog_comment.query.order_by(Blog_comment.created_at.desc()).limit(5)
 
@@ -541,6 +599,16 @@ def blog_post(blog_post_id):
         blog_tags.append(blog_tag)
 
     all_blog_tags = Blog_tag.query.order_by(Blog_tag.id.desc()).all()
+    t = []
+    for all_blog_tag in all_blog_tags:
+        cnt = Blog_post_has_blog_tag.query.filter_by(blog_tag_id=all_blog_tag.id).count()
+        t.append((all_blog_tag,cnt))
+    t = sorted(t, key=lambda k:k[1], reverse=True)
+    all_blog_tags = []
+    for tt in t:
+        if len(all_blog_tags) > 20:
+            break
+        all_blog_tags.append(tt[0])
     recent_blog_posts = Blog_post.query.order_by(Blog_post.created_at.desc()).limit(5)
     recent_blog_comments = Blog_comment.query.order_by(Blog_comment.created_at.desc()).limit(5)
     print blog_post.body
