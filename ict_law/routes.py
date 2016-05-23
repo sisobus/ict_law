@@ -1099,6 +1099,24 @@ def introduction_5():
     session['intro_nav_id'] = 5
     return render_template('introduction_5.html')
 
+@app.route('/introduction_6')
+def introduction_6():
+    session['nav_page_id'] = 1
+    session['intro_nav_id'] = 6
+    return render_template('introduction_6.html')
+
+@app.route('/introduction_7')
+def introduction_7():
+    session['nav_page_id'] = 1
+    session['intro_nav_id'] = 7
+    return render_template('introduction_7.html')
+
+@app.route('/introduction_8')
+def introduction_8():
+    session['nav_page_id'] = 1
+    session['intro_nav_id'] = 8
+    return render_template('introduction_8.html')
+
 @app.route('/test')
 def test():
     return render_template('test.html')

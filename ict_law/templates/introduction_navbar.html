@@ -2,7 +2,7 @@
     <ul class="nav bs-docs-sidenav">
         <li {% if session['intro_nav_id'] == 0 %}class="active"{% endif %}>
         <a href="/introduction">
-            소장 소개
+            인사말씀 
         </a>
         </li>
         <li  {% if session['intro_nav_id'] == 2 %}class="active"{% endif %}>
@@ -18,6 +18,21 @@
         <li  {% if session['intro_nav_id'] == 4 %}class="active"{% endif %}>
         <a href="/introduction_4">
             조직도
+        </a>
+        </li>
+        <li  {% if session['intro_nav_id'] == 6 %}class="active"{% endif %}>
+        <a href="/introduction_6">
+            소장 소개
+        </a>
+        </li>
+        <li  {% if session['intro_nav_id'] == 7 %}class="active"{% endif %}>
+        <a href="/introduction_7">
+            부소장 소개
+        </a>
+        </li>
+        <li  {% if session['intro_nav_id'] == 8 %}class="active"{% endif %}>
+        <a href="/introduction_8">
+            운영위원
         </a>
         </li>
         <li  {% if session['intro_nav_id'] == 5 %}class="active"{% endif %}>
