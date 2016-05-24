@@ -25,7 +25,7 @@
                     <h1 id="notice" class="page-header" style="margin-bottom:50px;">
                         <i class="fa fa-book"></i>
                         &nbsp;
-                        발간물
+                        발간물 <small>(자료집 전체파일은 로그인 후 다운로드 가능)</small>
                     </h1>
                     <section class="service_teasers">
                         {% for publication in ret.publications %}
@@ -69,7 +69,7 @@
                             발간물
                         </a>
                         </li>
-                        {% if 'logged_in' in session and (session['level'] == 99) %}
+                        {% if 'logged_in' in session  %}
                         <li>
                         <a href="/datafiles">
                             <i class="fa fa-exclamation"></i>
