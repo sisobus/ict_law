@@ -58,7 +58,7 @@
                                     {% for message in ret.signupForm.username.errors %}
                                         <div class="flash">{{ message }}</div>
                                     {% endfor %}
-                                    {{ ret.signupForm.username(class_="form-control",placeholder="닉네임") }}
+                                    {{ ret.signupForm.username(class_="form-control",placeholder="이름(실명)") }}
                                     {% for message in ret.signupForm.email.errors %}
                                         <div class="flash">{{ message }}</div>
                                     {% endfor %}
@@ -73,7 +73,7 @@
                                                 <div class="flash">{{ message }}</div>
                                             {% endfor %}
                                             {{ ret.signupForm.agree_check }}
-                                            <a href="#">이용약관</a>에 동의합니다.</label>
+                                            <a href="http://sogang.ac.kr/notice/private_rule/privacy05.html" target="_blank">이용약관</a>에 동의합니다.</label>
                                     </div>
                                 </div>
                                 <div class="col-lg-2"></div>

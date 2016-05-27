@@ -376,6 +376,8 @@ def edit_board(board_id):
         writeBoardForm.category.choices = get_board_category_list_for_select_form()
     board_category_list = get_board_category_list()
     board = Board.query.filter_by(id=board_id).first()
+    if not (session['user_id'] == board.user_id or session['level'] == 99):
+        return redirect(url_for('home'))
     writeBoardForm.title.data = board.title
     ret = {
             'writeBoardForm': writeBoardForm,
@@ -392,6 +394,8 @@ def save_edit_board(board_id):
         writeBoardForm.category.choices = get_board_category_list_for_select_form()
     board_category_list = get_board_category_list()
     board = Board.query.filter_by(id=board_id).first()
+    if not (session['user_id'] == board.user_id or session['level'] == 99):
+        return redirect(url_for('home'))
     ret = {
             'writeBoardForm': writeBoardForm,
             'board_category_list': board_category_list,
@@ -415,6 +419,8 @@ def delete_board(board_id):
         db.session.delete(comment)
         db.session.commit()
     board = Board.query.filter_by(id=board_id).first()
+    if not (session['user_id'] == board.user_id or session['level'] == 99):
+        return redirect(url_for('home'))
     db.session.delete(board)
     db.session.commit()
     return json.dumps({'message':'delete success'})
@@ -423,6 +429,8 @@ def delete_board(board_id):
 @login_required
 def delete_comment(comment_id):
     comment = Comment.query.filter_by(id=comment_id).first()
+    if not (session['user_id'] == comment.user_id or session['level'] == 99):
+        return redirect(url_for('home'))
     db.session.delete(comment)
     db.session.commit()
     return json.dumps({'message':'delete success'})
@@ -431,6 +439,8 @@ def delete_comment(comment_id):
 @login_required
 def delete_blog_comment(blog_comment_id):
     comment = Blog_comment.query.filter_by(id=blog_comment_id).first()
+    if not (session['user_id'] == comment.user_id or session['level'] == 99):
+        return redirect(url_for('home'))
     db.session.delete(comment)
     db.session.commit()
     return json.dumps({'message':'delete success'})
@@ -438,6 +448,9 @@ def delete_blog_comment(blog_comment_id):
 @app.route('/delete_blog_post/<int:blog_post_id>',methods=['POST'])
 @login_required
 def delete_blog_post(blog_post_id):
+    blog_post = Blog_post.query.filter_by(id=blog_post_id).first()
+    if not (session['user_id'] == blog_post.user_id or session['level'] == 99):
+        return redirect(url_for('home'))
     blog_comments = Blog_comment.query.filter_by(blog_post_id=blog_post_id).all()
     for blog_comment in blog_comments:
         db.session.delete(blog_comment)
@@ -446,7 +459,6 @@ def delete_blog_post(blog_post_id):
     for blog_post_has_blog_tag in blog_post_has_blog_tags:
         db.session.delete(blog_post_has_blog_tag)
         db.session.commit()
-    blog_post = Blog_post.query.filter_by(id=blog_post_id).first()
     db.session.delete(blog_post)
     db.session.commit()
     return json.dumps({'message':'delete success'})
@@ -455,6 +467,8 @@ def delete_blog_post(blog_post_id):
 @login_required
 def delete_activity(event_id):
     event = Event.query.filter_by(id=event_id).first()
+    if not (session['user_id'] == event.user_id or session['level'] == 99):
+        return redirect(url_for('home'))
     db.session.delete(event)
     db.session.commit()
     return json.dumps({'message':'delete success'})
@@ -463,6 +477,8 @@ def delete_activity(event_id):
 @login_required
 def delete_databook(publication_id):
     publication = Publication.query.filter_by(id=publication_id).first()
+    if not (session['user_id'] == publication.user_id or session['level'] == 99):
+        return redirect(url_for('home'))
     db.session.delete(publication)
     db.session.commit()
     return json.dumps({'message':'delete success'})
@@ -632,6 +648,8 @@ def edit_blog_post(blog_post_id):
     with app.app_context():
         writeBlogPostForm = WriteBlogPostForm()
     blog_post = Blog_post.query.filter_by(id=blog_post_id).first()
+    if not (session['user_id'] == blog_post.user_id or session['level'] == 99):
+        return redirect(url_for('home'))
     writeBlogPostForm.title.data = blog_post.title
     blog_post_has_blog_tags = Blog_post_has_blog_tag.query.filter_by(blog_post_id=blog_post_id).all()
     writeBlogPostForm.tags.data = ''
@@ -647,10 +665,13 @@ def edit_blog_post(blog_post_id):
     return render_template('edit_blog_post.html',ret=ret)
 
 @app.route('/save_edit_blog_post/<int:blog_post_id>',methods=['POST'])
+@login_required
 def save_edit_blog_post(blog_post_id):
     with app.app_context():
         writeBlogPostForm = WriteBlogPostForm()
     blog_post = Blog_post.query.filter_by(id=blog_post_id).first()
+    if not (session['user_id'] == blog_post.user_id or session['level'] == 99):
+        return redirect(url_for('home'))
     blog_post_has_blog_tags = Blog_post_has_blog_tag.query.filter_by(blog_post_id=blog_post_id).all()
     ret = {
             'writeBlogPostForm': writeBlogPostForm,
@@ -684,7 +705,10 @@ def save_edit_blog_post(blog_post_id):
 
 
 @app.route('/save_blog_post',methods=['POST'])
+@login_required
 def save_blog_post():
+    if session['level'] == 99:
+        return redirect(url_for('home'))
     with app.app_context():
         writeBlogPostForm = WriteBlogPostForm()
     ret = {
@@ -717,6 +741,8 @@ def save_blog_post():
 @app.route('/write_blog_post',methods=['GET'])
 @login_required
 def write_blog_post():
+    if not session['level'] == 99:
+        return redirect(url_for('home'))
     session['nav_page_id'] = 5
     with app.app_context():
         writeBlogPostForm = WriteBlogPostForm()
@@ -750,6 +776,7 @@ def post_image_save():
     return json.dumps(d)
 
 @app.route('/save_blog_comment',methods=['POST'])
+@login_required
 def save_blog_comment():
     with app.app_context():
         commentForm = CommentForm()
@@ -803,6 +830,8 @@ def activity():
 
 @app.route('/write_activity')
 def write_activity():
+    if not session['level'] == 99:
+        return redirect(url_for('home'))
     session['nav_page_id'] = 2
     with app.app_context():
         eventForm = EventForm()
@@ -815,6 +844,8 @@ def write_activity():
 @app.route('/save_activity',methods=['POST'])
 @login_required
 def save_activity():
+    if not session['level'] == 99:
+        return redirect(url_for('home'))
     session['nav_page_id'] = 2
     with app.app_context():
         eventForm = EventForm()
@@ -852,6 +883,8 @@ def save_activity():
 @app.route('/edit_activity/<int:event_id>')
 @login_required
 def edit_activity(event_id):
+    if not session['level'] == 99:
+        return redirect(url_for('home'))
     session['nav_page_id'] = 2
     with app.app_context():
         eventForm = EventForm()
@@ -866,6 +899,8 @@ def edit_activity(event_id):
 @app.route('/save_edit_activity/<int:event_id>',methods=['POST'])
 @login_required
 def save_edit_activity(event_id):
+    if not session['level'] == 99:
+        return redirect(url_for('home'))
     with app.app_context():
         eventForm = EventForm()
     event = Event.query.filter_by(id=event_id).first()
@@ -926,6 +961,8 @@ def databook():
 
 @app.route('/write_databook')
 def write_databook():
+    if not session['level'] == 99:
+        return redirect(url_for('home'))
     session['nav_page_id'] = 3
     with app.app_context():
         publicationForm = PublicationForm()
@@ -938,6 +975,8 @@ def write_databook():
 @app.route('/save_databook',methods=['POST'])
 @login_required
 def save_databook():
+    if not session['level'] == 99:
+        return redirect(url_for('home'))
     session['nav_page_id'] = 3
     with app.app_context():
         publicationForm = PublicationForm()
@@ -975,6 +1014,8 @@ def save_databook():
 @app.route('/edit_databook/<int:publication_id>')
 @login_required
 def edit_databook(publication_id):
+    if not session['level'] == 99:
+        return redirect(url_for('home'))
     session['nav_page_id'] = 3
     with app.app_context():
         publicationForm = PublicationForm()
@@ -989,6 +1030,8 @@ def edit_databook(publication_id):
 @app.route('/save_edit_databook/<int:publication_id>',methods=['POST'])
 @login_required
 def save_edit_databook(publication_id):
+    if not session['level'] == 99:
+        return redirect(url_for('home'))
     with app.app_context():
         publicationForm = PublicationForm()
     publication = Publication.query.filter_by(id=publication_id).first()
@@ -1043,6 +1086,8 @@ def upload_datafiles():
 @app.route('/write_datafiles')
 @login_required
 def write_datafiles():
+    if not session['level'] == 99:
+        return redirect(url_for('home'))
     return render_template('write_datafiles.html')
 
 @app.route('/datafiles')
@@ -1120,6 +1165,32 @@ def introduction_8():
 @app.route('/test')
 def test():
     return render_template('test.html')
+
+@app.route('/user_list')
+@login_required
+def user_list():
+    if not session['level'] == 99:
+        return redirect(url_for('home'))
+    search = False
+    per_page = 20
+    q = request.args.get('q')
+    if q:
+        search = True
+    try:
+        page = int(request.args.get('page', 1))
+    except ValueError:
+        page = 1
+
+    users = User.query.order_by(User.id.desc()).limit(per_page).offset((page-1)*per_page)
+    total_count = User.query.count()
+    pagination = Pagination(page=page, total=total_count, search=search, record_name='user', per_page=per_page)
+    ret = {
+            'users': users,
+            'pagination': pagination 
+            }
+    return render_template('user_list.html',ret=ret)
+    
+
 
 if __name__ == '__main__':
     app.run(host='58.227.42.161',debug=True)
