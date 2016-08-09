@@ -25,74 +25,37 @@
                     <h1 id="notice" class="page-header" style="margin-bottom:50px;">
                         <i class="fa fa-book"></i>
                         &nbsp;
-                        발간물
+                        Publication <small>(Login to download full texts)</small>
                     </h1>
                     <section class="service_teasers">
+                        {% for publication in ret.publications %}
                         <div class="service_teaser" style="border-bottom:1px solid #cccccc;padding-bottom:40px;">
                             <div class="service_photo col-sm-4 col-md-4">
-                                <figure style="background-image:url({{url_for('static',filename='images/slider/slider-1.jpg')}});">
+                                <figure style="background-image:url({{url_for('static',filename=publication.image_path)}});height:400px;">
                                 </figure>
                             </div>
                             <div class="service_details col-sm-8 col-md-8">
                                 <h2 class="section_header skincolored" style="padding-top:0px;">
-                                    China-Korea IP & Competition Law Annual report 2014 발간
-                                    <small>2015-12-01</small>
+                                    {{publication.publication.title}}
+                                    <small>{{publication.publication.created_at}}</small>
+                                    {% if 'logged_in' in session and session['level'] == 99 %}
+                                    <br>
+                                    <a href="/edit_databook/{{publication.publication.id}}">
+                                        <button class="btn btn-warning">수정하기</button>
+                                    </a>
+                                    <button class="btn btn-danger" data-toggle="modal" data-target="#delete-publication-modal-{{publication.publication.id}}">삭제하기</button>
+                                    {% include "delete_publication_confirm_modal.html" %}
+                                    {% endif %}
                                 </h2>
-                                <p>
-ICR센터와 중국 인민대학 경제법센터가 공동설립한 한-중 시장규제법센터(MRLC)에서 "China-Korea IP & Competition Law Annual Report 2014(한-중 지재권법·경쟁법 연차보고서 2014)"가 발간되었습니다.<br>
-한국과 중국의 지적재산권법과 경쟁법 및 교차영역에 대한 세계적 관심이 많은데 비해 구체적인 정보제공은 절대적으로 부족한 형편이어서 MRLC는 매년 지난 해의 해당 분야의 나라별 현황 등을 한/중/영어로 발간하는 것을 오래 검토해 왔습니다. 그 결과 세계적으로 상당한 수요가 있다고 판단하여 올해부터 발간하기로 하였습니다. 한/중/영어를 포괄하여 한 권의 책으로 한국과 중국 최고의 전문가들이 집필진으로 참여하였고, 양국 지적재산권법과 경쟁법 및 교차영역의 최신 이슈들을 총망라하여 깊이 있게 논의하였습니다.<br>
-아래 주소를 클릭하시면 책을 e-book과 paperback 형식으로 구입할 수 있습니다.<br>
-<br> 
-E-Book : http://www.amazon.com/gp/product/B019PONP6M<br>
-Paperbook : http://www.amazon.com/China-Korea-Competition-Law-Annual-report/dp/1519759681/<br>
-<br> 
-China-Korea IP & Competition Law Annual Report 집필에 참여하신 분들은 아래와 같습니다:<br>
-<br> 
-<br>
-한국 집필진<br>
-<br> 
-강일, 법무법인 태평양 변호사<br>
-금창호, 법무법인 화우 변호사<br>
-김경연, 법무법인 율촌 변호사<br>
-김병일, 한양대 법전원 교수<br>
-김원오, 인하대 법전원 교수<br>
-김진오, 김앤장 법률사무소 변호사<br>
- <br>
-중국 집필진<br>
- <br>
-Adrian EMCH, Hogan Lovells Law Firm 변호사<br>
-DONG Dudu, 인민대 법대 박사과정<br>
-GUO He, 인민대 법대 교수<br>
-JIN Haijun, 인민대 법대 교수<br>
-JIN Shanming, 중국 사회과학원 연구원<br>
-<br> 
-MRLC는 중국과 한국의 학자들의 협력을 통하여 이뤄낸 China-Korea IP & Competition Law Annual Report가 양국 법학의 발전에 도움이 되길 희망하고 있습니다. 많은 관심을 부탁 드리겠습니다.<br>
-China-Korea IP & Competition Law Annual Report 관련 기타 사항은 ICR센터 사무국으로 문의하여 주시기 바랍니다.<br>
-                                </p>
+                                <div id="post_body-{{publication.publication.id}}" class="summernote" style="word-wrap:break-word;">
+                                    {{ publication.publication.body | safe}}
+                                </div>
                             </div>
                         </div>
-
-                        <div class="service_teaser" style="border-bottom:1px solid #cccccc;padding-bottom:40px;">
-                            <div class="service_photo col-sm-4 col-md-4">
-                                <figure style="background-image:url({{url_for('static',filename='images/slider/slider-2.jpg')}});">
-                                </figure>
-                            </div>
-                            <div class="service_details col-sm-8 col-md-8">
-                                <h2 class="section_header skincolored" style="padding-top:0px;">
-                                    제 34회 규제법연구회 정기발표회
-                                    <small>2016-04-08</small>
-                                </h2>
-                                <p>
-                                ◇ 일시 : 2016년 4월 8일 금요일 19시 30분 ~ 21시 30분<br>
-                                ◇ 장소 : 법무법인 율촌 회의실 (2호선 삼성역 4번 출구/섬유센터 12층)<br>
-                                ◇ 주최 : 규제법연구회ㆍ고려대학교 ICR센터<br>
-                                <br>
-                                제1주제: 복지서비스의 민간공급에 관한 공법적 규율 - 박정연 (법학박사/고려대학교)<br>
-                                제2주제: 디지털플랫폼 공정경쟁규제에 관한 법적 연구- 모바일 앱마켓 사례를 중심으로 -<br>
-                                - 송태원 (변호사/네이버)<br>
-                                </p>
-                            </div>
-                        </div>
+                        {% endfor %}
+                        <center>
+                            {{ ret.pagination.links }}
+                        </center>
                     </section>
                 </div>
             </div>
@@ -100,19 +63,31 @@ China-Korea IP & Competition Law Annual Report 관련 기타 사항은 ICR센터
                 <div class="bs-docs-sidebar hidden-print affix-top" role="complementary" data-spy="affix" data-offset-top="164"> 
                     <ul class="nav bs-docs-sidenav">
                         <li class="active">
-                        <a href="#">
+                        <a href="/databook">
                             <i class="fa fa-book"></i>
                             &nbsp;
-                            발간물
+                            PUBLICATION
                         </a>
                         </li>
+                        {% if 'logged_in' in session  %}
                         <li>
-                        <a href="#">
+                        <a href="/datafiles">
                             <i class="fa fa-exclamation"></i>
                             &nbsp;
-                            자료집
+                            data
                         </a>
                         </li>
+                        {% endif %}
+
+                        {% if 'logged_in' in session and (session['level'] == 99) %}
+                        <li>
+                        <a href="/write_databook">
+                            <i class="fa fa-pencil"></i>
+                            &nbsp;
+                            data upload
+                        </a>
+                        </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>

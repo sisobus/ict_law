@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-525695643e822dae"></script>
 <style>
+.affix {
+    width: inherit;
+}
 form select#category {
     background:white;
     border-color: #cccccc;
@@ -32,35 +37,40 @@ form select#category {
                         &nbsp;
                         {{ ret.blog_post.title }}
                     </h1>
-                    <h5>작성자 {{ret.user.username}} &nbsp; | &nbsp; {{ ret.blog_post.created_at }}</h5>
+                    <h5>author {{ret.user.username}} &nbsp; | &nbsp; {{ ret.blog_post.created_at }}</h5>
                     <div class="form" style="border-bottom: 1px dashed #cccccc;padding-bottom:20px;">
                         <div id="post_body" class="summernote" style="overflow-x: hidden;">
+                            {{ ret.blog_post.body | safe }}
                         </div>
                         <h5>
                             <i class="fa fa-tags"></i> tags &nbsp;
                             {% for blog_tag in ret.blog_tags %}
-                            <div class="tag-container">
-                            {{ blog_tag.tag_name }} 
-                        </div>
+                            <a href="/blog_tag_search/{{blog_tag.tag_name}}">
+                                <div class="tag-container">
+                                    {{ blog_tag.tag_name }} 
+                                </div>
+                            </a>
                             {% endfor %}
                         </h5>
+                        <!-- Go to www.addthis.com/dashboard to customize your tools -->
+                        <div class="addthis_sharing_toolbox"></div>
                     </div>
                     <div id="post_comments" style="padding-top:20px;">
-                        <h4>댓글</h4>
+                        <h4>Comments</h4>
                         <div class="comment">
                         {% if 'logged_in' in session %}
                         <form action="/save_blog_comment?blog_post_id={{ret.blog_post.id}}" method="post">
                             {{ ret.commentForm.hidden_tag() }}
                             <div class="form-box">
-                                <h5>댓글 작성자 {{ session['username'] }}</h5>
+                                <h5>Comment author {{ session['username'] }}</h5>
                                 <div  style=";width:100%;">
                                     {% for message in ret.commentForm.body.errors %}
                                     <div class="flash">{{ message }}</div>
                                     {% endfor %}
-                                    {{ ret.commentForm.body(class_="form-control",placeholder="댓글 입력 ...") }}
+                                    {{ ret.commentForm.body(class_="form-control",placeholder="input comment...") }}
                                 </div>
                                 <div class="pull-right" style="padding-top:10px;">
-                                    <button type="submit" class="btn btn-primary">댓글쓰기</button>
+                                    <button type="submit" class="btn btn-primary">Write</button>
                                 </div>
                             </div>
                         </form>
@@ -81,7 +91,7 @@ form select#category {
                                         <div class="pull-right">
                                             {% if session['user_id'] == comment.user.id or session['level'] == 99 %}
                                             <button class="btn btn-danger" data-toggle="modal" data-target="#delete-comment-modal-{{comment.comment.id}}">
-                                                댓글 삭제
+                                                delete
                                             </button>
                                             {% endif %}
                                         </div>
@@ -96,22 +106,24 @@ form select#category {
             </div>
             <div class="col-md-3 hidden-sm hidden-xs">
                 <div class="bs-docs-sidebar hidden-print affix-top" role="complementary" data-spy="affix" data-offset-top="164"> 
+                    {% if 'logged_in' in session and (session['user_id'] == ret.blog_post.user_id or session['level'] == 99) %}
                     <ul class="nav bs-docs-sidenav">
                         <li>
                         <a href="/edit_blog_post/{{ret.blog_post.id}}">
                             <i class="fa fa-pencil-square" aria-hidden="true"></i>
-                             &nbsp; 수정하기
+                             &nbsp; Edit 
                         </a>
                         </li>
                         <li>
                         <a href="#" data-toggle="modal" data-target="#delete-modal">
                             <i class="fa fa-trash-o" aria-hidden="true"></i>
-                             &nbsp; 삭제하기
+                             &nbsp; Delete 
                         </a>
                         </li>
                     </ul>
+                    {% endif %}
                     <h4 style="padding-left:10px;">
-                        블로그 최신 글
+                        Recent Blog Posts
                     </h4>
                     <ul class="nav bs-docs-sidenav">
                         {% for recent_blog_post in ret.recent_blog_posts %}
@@ -123,17 +135,19 @@ form select#category {
                         {% endfor %}
                     </ul>
                     <h4 style="padding-left:10px;">
-                        <i class="fa fa-tags"></i> 태그
+                        <i class="fa fa-tags"></i> Tags 
                     </h4>
                     <div style="padding-left:10px;">
                         {% for blog_tag in ret.all_blog_tags %}
-                        <div class="tag-container">
-                            {{ blog_tag.tag_name }}
-                        </div>
+                        <a href="/blog_tag_search/{{blog_tag.tag_name}}">
+                            <div class="tag-container">
+                                {{ blog_tag.tag_name }}
+                            </div>
+                        </a>
                         {% endfor %}
                     </div>
                     <h4 style="padding-left:10px;padding-top:10px;">
-                        추천 블로그
+                        Recommend Blogs
                     </h4>
                     <ul class="nav bs-docs-sidenav">
                         <li>
@@ -152,8 +166,6 @@ form select#category {
 <script>
 $(document).ready(function() {
     $('body').attr('data-spy','scroll').attr('data-target','.bs-docs-sidebar');
-    var html = "{{ ret.blog_post.body }}";
-    $('#post_body').html($('<div/>').html(html).text());
     $('#delete-button').click(function() {
         $.ajax({
             url: '/delete_blog_post/{{ret.blog_post.id}}',

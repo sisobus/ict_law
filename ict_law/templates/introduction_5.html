@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+
+.pagination-page-info {
+    padding: .6em;
+    padding-left: 0;
+    width: 40em;
+    margin: .5em;
+    margin-left: 0;
+    font-size: 12px;
+}
+.pagination-page-info b {
+    color: black;
+    padding-left: 2px;
+    padding: .1em .25em;
+    font-size: 150%;
+}
+</style>
+<div class="main" >
+    <div class="container bs-docs-container">
+        <div class="row">
+            <div class="col-md-10">
+                <div class="bs-docs-section">
+                    <h1 id="notice" class="page-header" style="margin-bottom:50px;">
+                        Research Fellows
+                    </h1>
+                </div>
+            </div>
+            <div class="col-md-2 hidden-sm hidden-xs">
+                {% include "introduction_navbar.html" %}
+            </div>
+
+        </div>
+    </div>
+    {% include "footer.html" %}
+</div>
+<script>
+$(document).ready(function() {
+    $('body').attr('data-spy','scroll').attr('data-target','.bs-docs-sidebar');
+    $('.pagination ul').addClass('pagination');
+});
+</script>
+{% endblock %}

@@ -35,27 +35,28 @@ form select#category {
                         &nbsp;
                         {{ ret.board.title }}
                     </h1>
-                    <h5>작성자 {{ret.user.username}} &nbsp; | &nbsp; 카테고리 <a href="/board/{{ret.board_category.id}}">{{ret.board_category.category_name}}</a> &nbsp; | &nbsp; {{ ret.board.created_at }}</h5>
+                    <h5>Author {{ret.user.username}} &nbsp; | &nbsp; Category <a href="/board/{{ret.board_category.id}}">{{ret.board_category.category_name}}</a> &nbsp; | &nbsp; {{ ret.board.created_at }}</h5>
                     <div class="form" style="border-bottom: 1px dashed #cccccc;padding-bottom:20px;">
                         <div id="post_body" class="summernote" style="word-wrap: break-word;">
+                            {{ ret.board.body | safe }}
                         </div>
                     </div>
                     <div id="post_comments" style="padding-top:20px;">
-                        <h4>댓글</h4>
+                        <h4>Comment</h4>
                         <div class="comment">
                         {% if 'logged_in' in session %}
                         <form action="/save_comment?board_id={{ret.board.id}}" method="post">
                             {{ ret.commentForm.hidden_tag() }}
                             <div class="form-box">
-                                <h5>댓글 작성자 {{ session['username'] }}</h5>
+                                <h5>Comment Author{{ session['username'] }}</h5>
                                 <div  style="width:100%;">
                                     {% for message in ret.commentForm.body.errors %}
                                     <div class="flash">{{ message }}</div>
                                     {% endfor %}
-                                    {{ ret.commentForm.body(class_="form-control",placeholder="댓글 입력 ...") }}
+                                    {{ ret.commentForm.body(class_="form-control",placeholder="Input Comment ...") }}
                                 </div>
                                 <div class="pull-right" style="padding-top:10px;;">
-                                    <button type="submit" class="btn btn-primary">댓글쓰기</button>
+                                    <button type="submit" class="btn btn-primary">Write</button>
                                 </div>
                             </div>
                         </form>
@@ -75,7 +76,7 @@ form select#category {
                                         </p>
                                         <div class="pull-right">
                                             {% if session['user_id'] == comment.user.id or session['level'] == 99 %}
-                                            <button class="btn btn-danger" data-toggle="modal" data-target="#delete-comment-modal-{{comment.comment.id}}">댓글 삭제</button>
+                                            <button class="btn btn-danger" data-toggle="modal" data-target="#delete-comment-modal-{{comment.comment.id}}">Delete</button>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -124,7 +125,7 @@ form select#category {
                         <a href="/write_board">
                             <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                             &nbsp;
-                            글쓰기
+                            Write
                         </a>
                         </li>
                         {% endif %}
@@ -133,7 +134,7 @@ form select#category {
                         <a href="/edit_board/{{ret.board.id}}">
                             <i class="fa fa-pencil-square" aria-hidden="true"></i>
                             &nbsp;
-                            수정하기
+                            Edit
                         </a>
                         </li>
                         {% endif %}
@@ -142,7 +143,7 @@ form select#category {
                         <a href="#" data-toggle="modal" data-target="#delete-modal"> 
                             <i class="fa fa-trash-o" aria-hidden="true"></i>
                             &nbsp;
-                            삭제하기
+                            Delete
                         </a>
                         </li>
                         {% endif %}
@@ -157,8 +158,6 @@ form select#category {
 <script>
 $(document).ready(function() {
     $('body').attr('data-spy','scroll').attr('data-target','.bs-docs-sidebar');
-    var html = "{{ ret.board.body }}";
-    $('#post_body').html($('<div/>').html(html).text());
     $('#delete-button').click(function() {
         $.ajax({
             url: '/delete_board/{{ret.board.id}}',

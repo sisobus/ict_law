@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+
+.pagination-page-info {
+    padding: .6em;
+    padding-left: 0;
+    width: 40em;
+    margin: .5em;
+    margin-left: 0;
+    font-size: 12px;
+}
+.pagination-page-info b {
+    color: black;
+    padding-left: 2px;
+    padding: .1em .25em;
+    font-size: 150%;
+}
+</style>
+<div class="main" >
+    <div class="container bs-docs-container">
+        <div class="row">
+            <div class="col-md-10">
+                <div class="bs-docs-section">
+                    <h1 id="notice" class="page-header" style="margin-bottom:50px;">
+                        Message from ICLE
+                    </h1>
+                    <p style="text-align:justify;line-height:1.7;font-size:18px;">
+&nbsp;&nbsp;Welcome to ICT Law & Economy Institute<br>
+<br>
+&nbsp;&nbsp;ICT Law & Economy Institute is established to develop and substitute Law and Market Economy Center, the former body as the Legal Research Institute-affiliated organization, and is a branch of Sogang University Headquarter. As an expert, experienced more than 20 years in competition law and telecommunications regulation, it was my idea to set up an institute to combine competition law and regulation law that is specialized in ICT field and also to carry out research about related fields. Professor Sung-yeop Lee, a professional with experience in governmental regulations and telecommunications regulation for more than 20 years, agreed to my idea then; ICT Law & Economy Institute was established.<br> 
+<br>
+&nbsp;&nbsp;When starting the institute, our biggest concern was how to differentiate from other academic societies, centers of universities and organizations, as they are already playing similar roles to ours. While still concerning, we are proud to add a platform that enables professionals of university to communicate with participants living in constantly changing world.<br>
+<br>
+&nbsp;&nbsp;ICT Law & Economy Institute analyzes issues of ICT fields, derives political issues, helps improving systems and suggests rules to related participants by providing intellectual platforms and interacting in such processes. Convergence between Contents(C) - Platform (P) - Network (N) - Device (D) shows the importance of communications between groups of experts.<br>
+<br>
+&nbsp;&nbsp;First of all, as ICT Law & Economy Institute is a university-affiliated organization, our institute provide a place for experts of law, economics, business administrations and mass communications to interact with each other to produce and provide structured information and specialized knowledge about ICT environment (PROVIDING INTELLECTUAL CONTENTS).<br>
+<br>
+&nbsp;&nbsp;Moreover, ICT Law & Economy Institute provides a point of contact between groups of experts, government officials and market participants and circulate ideas and knowledges about systems, regulations, and information that might occur in changing ICT environment (ROLE of INTELLECTUAL PLATFORM). <br>
+ <br>
+&nbsp;&nbsp;ICT Law & Economy Institute aims to deliver opinions of legal and economics experts to government officials and industrial participants, to get feedbacks of ICT fields to stimulate researchers thus creating a virtuous circle. ICT Law & Economy Institute seeks to role as the research platform of ICT law and economy field.<br>
+<br>
+<br>
+                    </p>
+<h4 style="text-align:right;">
+Sogang ICT Law & Economy Institute<br>
+<br>
+Director <strong>Dae-sik Hong</strong>
+</h4>
+<div class="col-md-6 col-sm-6" style="float:right;padding:0;margin:0;">
+    <img src="{{url_for('static',filename='/images/introduction_pic.png')}}" style="border:0;width:100%;">
+</div>
+                </div>
+            </div>
+            <div class="col-md-2 hidden-sm hidden-xs">
+                {% include "introduction_navbar.html" %}
+            </div>
+
+        </div>
+    </div>
+    {% include "footer.html" %}
+</div>
+<script>
+$(document).ready(function() {
+    $('body').attr('data-spy','scroll').attr('data-target','.bs-docs-sidebar');
+    $('.pagination ul').addClass('pagination');
+});
+</script>
+{% endblock %}

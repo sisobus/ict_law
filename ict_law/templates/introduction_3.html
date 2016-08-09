@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+
+.timeline {
+  list-style: none;
+}
+.timeline > li {
+  margin-bottom: 60px;
+}
+
+/* for Desktop */
+@media ( min-width : 640px ){
+  .timeline > li {
+    overflow: hidden;
+    margin: 0;
+    position: relative;
+  }
+  .timeline-date {
+    width: 110px;
+    float: left;
+    margin-top: 20px;
+  }
+  .timeline-content {
+    width: 75%;
+    float: left;
+    border-left: 3px #eeeeee solid;
+    padding-left: 30px;
+  }
+  .timeline-content:before {
+    content: '';
+    width: 12px;
+    height: 12px;
+    background: #6fc173;
+    position: absolute;
+    left: 106px;
+    top: 24px;
+    border-radius: 100%;
+  }
+}
+
+.pagination-page-info {
+    padding: .6em;
+    padding-left: 0;
+    width: 40em;
+    margin: .5em;
+    margin-left: 0;
+    font-size: 12px;
+}
+.pagination-page-info b {
+    color: black;
+    padding-left: 2px;
+    padding: .1em .25em;
+    font-size: 150%;
+}
+</style>
+<div class="main" >
+    <div class="container bs-docs-container">
+        <div class="row">
+            <div class="col-md-10">
+                <div class="bs-docs-section">
+                    <h1 id="notice" class="page-header" style="margin-bottom:50px;">
+                        History
+                    </h1>
+                </div>
+                <ul class="timeline">
+                    <li>
+                    <p class="timeline-date">2016-05-23 </p>
+                    <div class="timeline-content">
+                        <h3>사이트 오픈</h3>
+                        <p>사이트 오픈 사이트 오픈사이트 오픈사이트 오픈사이트 오픈사이트 오픈사이트 오픈사이트 오픈 사이트 오픈사이트 오픈사이트 오픈사이트 오픈사이트 오픈사이트 오픈사이트 오픈</p>
+                    </div>
+                    </li>
+
+                    <li>
+                    <p class="timeline-date">2016-05-23 </p>
+                    <div class="timeline-content">
+                        <h3>사이트 오픈</h3>
+                        <p>사이트 오픈</p>
+                    </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-2 hidden-sm hidden-xs">
+                {% include "introduction_navbar.html" %}
+            </div>
+
+        </div>
+    </div>
+    {% include "footer.html" %}
+</div>
+<script>
+$(document).ready(function() {
+    $('body').attr('data-spy','scroll').attr('data-target','.bs-docs-sidebar');
+    $('.pagination ul').addClass('pagination');
+});
+</script>
+{% endblock %}
