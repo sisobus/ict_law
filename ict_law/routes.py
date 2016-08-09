@@ -707,7 +707,7 @@ def save_edit_blog_post(blog_post_id):
 @app.route('/save_blog_post',methods=['POST'])
 @login_required
 def save_blog_post():
-    if session['level'] == 99:
+    if session['level'] != 99:
         return redirect(url_for('home'))
     with app.app_context():
         writeBlogPostForm = WriteBlogPostForm()
@@ -728,6 +728,8 @@ def save_blog_post():
             if tags:
                 tags = tags.split(',')
                 for tag in tags:
+                    if len(tag.strip()) == 0:
+                        continue
                     blog_tag = Blog_tag.query.filter_by(tag_name=tag.strip()).first()
                     if not blog_tag:
                         blog_tag = Blog_tag(tag.strip())
