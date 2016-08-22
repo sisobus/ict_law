@@ -1,6 +1,5 @@
 ict_law/venv/*
 ict_law/*.pyc
-ict_law/static/files/*
 *.swp
 ict_law/backup/backup.sh
 
