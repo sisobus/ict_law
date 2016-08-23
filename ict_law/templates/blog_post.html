@@ -126,7 +126,7 @@ form select#category {
                         Recent Blog Posts
                     </h4>
                     <ul class="nav bs-docs-sidenav">
-                        {% for recent_blog_post in ret.recent_blog_posts %}
+                        {% for recent_blog_post in ret.recent_blog_posts[:3] %}
                         <li>
                             <a href="/blog_post/{{recent_blog_post.id}}">
                                 {{ recent_blog_post.title[:30] }} ...
@@ -138,7 +138,7 @@ form select#category {
                         <i class="fa fa-tags"></i> Tags 
                     </h4>
                     <div style="padding-left:10px;">
-                        {% for blog_tag in ret.all_blog_tags %}
+                        {% for blog_tag in ret.all_blog_tags[:15] %}
                         <a href="/blog_tag_search/{{blog_tag.tag_name}}">
                             <div class="tag-container">
                                 {{ blog_tag.tag_name }}
@@ -155,6 +155,15 @@ form select#category {
                         </li>
                         <li>
                         <a href="https://truthonthemarket.com/">truth on the market</a>
+                        </li>
+                        <li>
+                        <a href="http://lawprofessors.typepad.com/antitrustprof_blog/">Antitrust & Competition Policy Blog</a>
+                        </li>
+                        <li>
+                        <a href="https://www.competitionpolicyinternational.com/columns/">CPI Journal Columns</a>
+                        </li>
+                        <li>
+                        <a href="http://www.project-disco.org/">Disrupt Competition Project</a>
                         </li>
                     </ul>
                 </div>
