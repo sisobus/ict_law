@@ -7,6 +7,8 @@ import json
 ALLOWED_EXTENSIONS = set(['txt','pdf','png','jpg','JPG','jpeg','JPEG','gif','GIF','zip'])
 
 def allowedFile(filename):
+    if filename.find('.') == -1:
+        return filename in ALLOWED_EXTENSIONS
     return '.' in filename and filename.rsplit('.',1)[1] in ALLOWED_EXTENSIONS
 
 def createDirectory(directoryName):
